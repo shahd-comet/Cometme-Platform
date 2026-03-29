@@ -1,0 +1,1648 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Auth;
+use DB; 
+
+use Route;
+use App\Models\AllEnergyMeter;
+use App\Models\AllMissingMeter; 
+use App\Models\AllEnergyPurchaseMeter; 
+use App\Models\AllEnergyMeterHistoryCase; 
+use App\Models\AllEnergyMeterDonor;
+use App\Models\AllEnergyMeterNewDonor;
+use App\Models\AllEnergyVendingMeter;
+use App\Models\AllEnergyMeterPhase;
+use App\Models\ElectricityCollectionBox;
+use App\Models\ElectricityPhase;
+use App\Models\User;
+use App\Models\Community;
+use App\Models\CommunityDonor;
+use App\Models\CompoundHousehold;
+use App\Models\CommunityVendor; 
+use App\Models\CommunityService;
+use App\Models\Donor;
+use App\Models\DisplacedHousehold;
+use App\Models\DisplacedHouseholdStatus;
+use App\Models\EnergyDonor;
+use App\Models\EnergySystem;
+use App\Models\EnergySystemType;
+use App\Models\EnergyRequestSystem;
+use App\Models\EnergyUser;
+use App\Models\EnergyHolder;
+use App\Models\EnergyPublicStructure;
+use App\Models\EnergyPublicStructureDonor;
+use App\Models\Household;
+use App\Models\HouseholdMeter;
+use App\Models\InstallationType;
+use App\Models\MeterCase;
+use App\Models\ServiceType;
+use App\Models\PublicStructure;
+use App\Models\PublicStructureCategory;
+use App\Models\Region;
+use App\Models\VendorUserName;
+use App\Models\EnergySystemCycle;
+use App\Models\RefrigeratorHolder;
+use App\Models\CometMeter;
+use App\Exports\EnergyHolder\AllEnergyExport;
+use App\Exports\EnergyHolder\CometMetresExport;
+use App\Exports\EnergyHolder\RefrigeratorExport;
+use App\Exports\EnergyHolder\ReactivatedEnergyExport;
+use App\Exports\PurchaseEnergyExport;
+use App\Exports\Purchase\PurchaseEnergyExport1;
+use App\Imports\PurchaseEnergyImport;
+use App\Imports\PurchaseEnergyImport1;
+Use App\Http\Controllers\ConfirmedHousehold;
+use App\Helpers\SequenceHelper;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Image;
+use DataTables;
+use Excel;
+
+class AllEnergyController extends Controller
+{
+
+    public function getOtherValues() {
+        // $allEnergyDonors = AllEnergyMeterDonor::all();
+
+        // foreach($allEnergyDonors as $allEnergyDonor) {
+
+        //     $allEnergyMeter = AllEnergyMeter::findOrFail($allEnergyDonor->all_energy_meter_id);
+
+        //     if($allEnergyMeter) {
+
+        //         $dupliatedDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $allEnergyMeter->id)
+        //             ->where("community_id", $allEnergyMeter->community_id)
+        //             ->get();
+
+        //         $uniqueDonors = [];
+
+        //         foreach ($dupliatedDonors as $dupliatedDonor) {
+                    
+        //             if (in_array($dupliatedDonor->donor_id, $uniqueDonors)) {
+
+        //                 $dupliatedDonor->delete();
+        //             } else {
+
+        //                 $uniqueDonors[] = $dupliatedDonor->donor_id;
+        //             }
+        //         }
+        //         // $wrongEnergyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $allEnergyMeter->id)
+        //         //     ->where("community_id", "!=", $allEnergyMeter->community_id)
+        //         //     ->get();
+        //         // foreach($wrongEnergyDonors as $wrongEnergyDonor) {
+
+        //         //     $wrongEnergyDonor->delete();
+        //         // }
+        //     }
+        // }
+
+        // $allEnergyMeters = AllEnergyMeter::where('is_archived', 0)
+        //     ->whereNotNull('household_id')
+        //     ->where('community_id', 187) // 179
+        //     ->get();
+
+        // foreach($allEnergyMeters as $allEnergyMeter) {
+
+        //     $allEnergyMeter->energy_system_cycle_id = 1;
+        //     $allEnergyMeter->save();
+
+        //     $household = Household::where('id', $allEnergyMeter->household_id)->first();
+
+        //     if($household) {
+
+        //         $household->energy_system_cycle_id = 1;
+        //         $household->save();
+        //     }
+        // }
+
+      //  /* Comparasion between platform and vending software
+        // $allEnergyMeters = AllEnergyMeter::where("is_archived", 0)->get();
+        // $allVendingMeters = AllEnergyVendingMeter::get();
+
+        // foreach($allEnergyMeters as $allEnergyMeter) {
+
+        //     foreach($allVendingMeters as $allVendingMeter)  {
+
+                
+        //         if($allEnergyMeter->meter_number == $allVendingMeter->meter_number) {
+
+        //             // $allVendingMeter->community_id = $allEnergyMeter->community_id;
+
+        //             if($allEnergyMeter->household_id) {
+
+        //                 $allVendingMeter->household_id = $allEnergyMeter->household_id;
+        //             }
+        //             if($allEnergyMeter->public_structure_id) {
+
+        //                 $allVendingMeter->public_structure_id = $allEnergyMeter->public_structure_id;
+        //             }
+
+        //             $allVendingMeter->save();
+
+        //             // $allEnergyMeter->last_purchase_date = $allVendingMeter->last_purchase_date;
+        //             // $allEnergyMeter->meter_case_id = $allVendingMeter->meter_case_id;
+        //             // $allEnergyMeter->meter_notes = $allVendingMeter->notes;
+        //             // $allEnergyMeter->save();
+
+        //         }
+        //     }
+        // }
+       // End comparasion*/
+
+        // $allMeters = AllEnergyMeter::get();
+        // $allDuplicatedMeters = DB::table('all_energy_meters')
+        //     ->select('meter_number', DB::raw('COUNT(*) as `count`'))
+        //     ->groupBy('meter_number', )
+        //     ->havingRaw('COUNT(*) > 1')
+        //     ->get();
+
+        // die($allDuplicatedMeters);
+
+        // $allUsers = AllEnergyMeter::where("installation_type_id", 2)->get();
+        
+
+        // foreach($allUsers as $allUser) {
+
+        //     $sharedUser = HouseholdMeter::where('household_id', $allUser->household_id)->first();
+            
+        //     if($sharedUser) {
+
+        //         $sharedEnergy = AllEnergyMeter::where("household_id", $sharedUser)->first();
+        //         $sharedEnergy->installation_type_id = 2;
+        //         $sharedEnergy->save();
+        //     }
+        // }
+
+
+        // $subUsers = AllEnergyMeter::where("is_main", "No")->get();
+        
+        // foreach($subUsers as $subUser) {
+
+        //     $mainUser = HouseholdMeter::where('household_id', $subUser->household_id)->first();
+            
+        //     $energyUser = AllEnergyMeter::where('id', $mainUser->energy_user_id)->first();
+            
+        //     $subUser->installation_type_id = $energyUser->installation_type_id;
+        //     $subUser->save();
+        // }
+
+        // $energyUsers = AllEnergyMeter::where("energy_system_type_id", 2)->get();
+
+        // foreach($energyUsers as $energyUser) {
+
+        //     $energyUser->ground_connected = "No";
+        //     $energyUser->save();
+        // }
+
+        // $energyUsers = AllEnergyMeter::where("energy_system_type_id", 1)
+        //     ->orWhere("energy_system_type_id", 3)
+        //     ->orWhere("energy_system_type_id", 4)
+        //     ->get();
+
+        // foreach($energyUsers as $energyUser) {
+
+        //     $energyUser->ground_connected = "Yes";
+        //     $energyUser->save();
+        // }
+
+        // add the donors for users if it's exist in community-donors 
+        $missingUserEnergDonors = DB::table('all_energy_meters')
+            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+            ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+            ->leftJoin('energy_system_types', 'all_energy_meters.energy_system_type_id', 
+                'energy_system_types.id')
+            ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id', 
+                'all_energy_meter_donors.all_energy_meter_id')
+            ->join('households', 'households.id', 'all_energy_meters.household_id')
+            ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
+            ->whereNull('all_energy_meter_donors.all_energy_meter_id')
+            ->where('all_energy_meters.energy_system_id', '!=', 100)
+            ->select(
+                'communities.english_name as community', 'all_energy_meters.meter_number',
+                'households.english_name as household_name', 'household_statuses.status',
+                'energy_systems.name as energy_name', 'energy_system_types.name as type',
+                'households.id as id', 'all_energy_meters.id as all_energy_meter_id',
+                'communities.id as community_id'
+                )
+            ->get();
+
+        if(count($missingUserEnergDonors) > 0) {
+
+            foreach($missingUserEnergDonors as $missingUserEnergDonor) {
+
+                $compoundHousehold = CompoundHousehold::where('household_id', $missingUserEnergDonor->id)->first();
+                if($compoundHousehold) {
+
+                    $compoundDonors = CommunityDonor::where('compound_id', $compoundHousehold->compound_id)
+                        ->where('service_id', 1)
+                        ->get();
+
+                    if($compoundDonors) {
+
+                        foreach($compoundDonors as $compoundDonor) {
+                                
+                            $newAllEnergyCompoundMeterDonor = new AllEnergyMeterDonor();
+                            $newAllEnergyCompoundMeterDonor->compound_id = $compoundDonor->compound_id;
+                            $newAllEnergyCompoundMeterDonor->all_energy_meter_id = $missingUserEnergDonor->all_energy_meter_id;
+                            $newAllEnergyCompoundMeterDonor->donor_id = $compoundDonor->donor_id;
+                            $newAllEnergyCompoundMeterDonor->save();
+                        }
+                    }
+                }
+                $communityDonors = CommunityDonor::where('community_id', $missingUserEnergDonor->community_id)
+                    ->where('service_id', 1)
+                    ->get();
+
+                if($communityDonors) {
+
+                    foreach($communityDonors as $communityDonor) {
+                                
+                        $newAllEnergyCommunityMeterDonor = new AllEnergyMeterDonor();
+                        $newAllEnergyCommunityMeterDonor->community_id = $communityDonor->community_id;
+                        $newAllEnergyCommunityMeterDonor->all_energy_meter_id = $missingUserEnergDonor->all_energy_meter_id;
+                        $newAllEnergyCommunityMeterDonor->donor_id = $communityDonor->donor_id;
+                        $newAllEnergyCommunityMeterDonor->save();
+                    }
+                } 
+            }
+        }
+    }
+
+    // This method for generating the action buttons
+    private function generateActionButtons($row)
+    {
+        $viewButton = "<a type='button' class='viewEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+        $updateButton = "<a type='button' class='updateAllEnergyUser' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+        $deleteButton = "<a type='button' class='deleteAllEnergyUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+        
+        if(Auth::guard('user')->user()->user_type_id == 1 || 
+            Auth::guard('user')->user()->user_type_id == 2 ||
+            Auth::guard('user')->user()->user_type_id == 3 ||
+            Auth::guard('user')->user()->user_type_id == 4 ||
+            Auth::guard('user')->user()->user_type_id == 7 ||
+            Auth::guard('user')->user()->user_type_id == 12 ||
+            Auth::guard('user')->user()->role_id == 21) 
+        {
+                
+            return $viewButton." ". $updateButton." ".$deleteButton;
+        } else return $viewButton;
+    }
+
+    /**
+     * Getting the total for different agents
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getCounts()
+    {
+        $allEnergyCount = DB::table('all_energy_meters')
+            ->leftJoin('households', function ($join) {
+                $join->on('all_energy_meters.household_id', 'households.id')
+                    ->where('households.is_archived', 0);
+            })
+            ->leftJoin('public_structures', function ($join) {
+                $join->on('all_energy_meters.public_structure_id', 'public_structures.id')
+                    ->where('public_structures.is_archived', 0);
+            })
+            ->where("all_energy_meters.is_archived", 0)
+            ->where(function ($q) {
+                $q->whereNotNull('all_energy_meters.meter_number')
+                    ->orWhere('all_energy_meters.meter_number', 0);
+                })
+            ->distinct('all_energy_meters.id')
+            ->count();
+
+        $sharedCount = HouseholdMeter::where("is_archived", 0)->count();
+        $deactivatedCount = DB::table('deactivated_energy_holders')
+            ->where('deactivated_energy_holders.is_archived', 0)
+            ->count();
+        $refrigeratorCount = DB::table('refrigerator_holders')
+            ->join('communities', 'refrigerator_holders.community_id', 'communities.id')
+            ->leftJoin('households', 'refrigerator_holders.household_id', 'households.id')
+            ->leftJoin('public_structures', 'refrigerator_holders.public_structure_id', 
+                'public_structures.id')
+            ->leftJoin('all_energy_meters as energy_users', 'energy_users.household_id', 'households.id')
+            ->leftJoin('all_energy_meters as energy_publics', 'energy_publics.public_structure_id', 'public_structures.id')
+            ->where('refrigerator_holders.is_archived', 0)
+            ->count();
+        $cometCount = DB::table('all_energy_meters')
+            ->join('public_structures', 'all_energy_meters.public_structure_id', 'public_structures.id')
+            ->where('all_energy_meters.is_archived', 0)
+            ->where('public_structures.comet_meter', 1)
+            ->count();
+
+        return response()->json([
+            'allEnergyCount' => $allEnergyCount,
+            'sharedCount'       => $sharedCount,
+            'deactivatedCount'      => $deactivatedCount,
+            'refrigeratorCount'   => $refrigeratorCount,
+            'cometCount' => $cometCount
+        ]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $this->getOtherValues();
+
+        $communityFilter = $request->input('community_filter');
+        $typeFilter = $request->input('type_filter');
+        $dateFilter = $request->input('date_filter');
+        $yearFilter = $request->input('year_filter');
+        $meterFilter = $request->input('meter_filter');
+        $regionFilter = $request->input('region_filter');
+        $energyTypeFilter = $request->input('system_type_filter'); 
+        $cycleFilter = $request->input('cycle_filter');
+
+        if (Auth::guard('user')->user() != null) {
+
+            if ($request->ajax()) {
+
+                $data = DB::table('all_energy_meters')
+                    ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                    ->leftJoin('households', function ($join) {
+                        $join->on('all_energy_meters.household_id', 'households.id')
+                            ->where('households.is_archived', 0);
+                    })
+                    ->leftJoin('public_structures', function ($join) {
+                        $join->on('all_energy_meters.public_structure_id', 'public_structures.id')
+                            ->where('public_structures.is_archived', 0);
+                    })
+
+                    ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                    ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
+                    ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
+                    ->leftJoin('household_meters', 'household_meters.energy_user_id', 'all_energy_meters.id')
+                    ->leftJoin('households as shared_households', function ($join) {
+                        $join->on('shared_households.id', '=', 'household_meters.household_id')
+                            ->where('shared_households.is_archived', 0);
+                    })
+
+                    ->leftJoin('public_structures as shared_publics', function ($join) {
+                        $join->on('shared_publics.id', '=', 'household_meters.public_structure_id')
+                            ->where('shared_publics.is_archived', 0);
+                    })
+                    ->where('all_energy_meters.is_archived', 0)
+                    ->where(function ($q) {
+                        $q->whereNotNull('all_energy_meters.meter_number')
+                            ->orWhere('all_energy_meters.meter_number', 0);
+                    });
+                
+                $data->when($regionFilter, fn($q) => $q->where('communities.region_id', $regionFilter))
+                    ->when($communityFilter, fn($q) => $q->where('communities.id', $communityFilter))
+                    ->when($typeFilter, fn($q) => $q->where('all_energy_meters.installation_type_id', $typeFilter))
+                    ->when($energyTypeFilter, fn($q) => $q->where('energy_system_types.id', $energyTypeFilter))
+                    ->when($meterFilter, fn($q) => $q->where('meter_cases.id', $meterFilter))
+                    ->when($cycleFilter, fn($q) => $q->where('all_energy_meters.energy_system_cycle_id', $cycleFilter))
+                    ->when($yearFilter, fn($q) => $q->where('all_energy_meters.installation_date', $yearFilter))
+                    ->when($dateFilter, fn($q) => $q->where('all_energy_meters.installation_date', '>=', $dateFilter));
+
+                $search = $request->input('search.value'); 
+
+                if (!empty($search)) {
+                    $data->where(function ($w) use ($search) {
+                        $w->where('communities.english_name', 'LIKE', "%$search%")
+                        ->orWhere('households.english_name', 'LIKE', "%$search%")
+                        ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                        ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
+                        ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
+                        ->orWhere('shared_households.english_name', 'LIKE', "%$search%")
+                        ->orWhere('shared_publics.english_name', 'LIKE', "%$search%")
+                        ->orWhere('energy_systems.name', 'LIKE', "%$search%")
+                        ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
+                        ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%");
+                    });
+                }
+
+                $totalRecords = DB::table('all_energy_meters')
+                    ->leftJoin('households', function ($join) {
+                        $join->on('all_energy_meters.household_id', 'households.id')
+                            ->where('households.is_archived', 0);
+                    })
+                    ->leftJoin('public_structures', function ($join) {
+                        $join->on('all_energy_meters.public_structure_id', 'public_structures.id')
+                            ->where('public_structures.is_archived', 0);
+                    })
+                    ->where("all_energy_meters.is_archived", 0)
+                    ->where(function ($q) {
+                        $q->whereNotNull('all_energy_meters.meter_number')
+                            ->orWhere('all_energy_meters.meter_number', 0);
+                        })
+                    ->distinct('all_energy_meters.id')
+                    ->count();
+
+                $filteredRecords = (clone $data)->count();
+
+                $data = $data->select(
+                    'all_energy_meters.meter_number', 'all_energy_meters.meter_active',
+                    'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
+                    'all_energy_meters.updated_at as updated_at', 
+                    'communities.english_name as community_name',
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                        as holder'),
+                    'energy_systems.name as energy_name', 
+                    'energy_system_types.name as energy_type_name',
+                    'meter_cases.meter_case_name_english',
+                    DB::raw("'action' AS action")
+                    )
+                    ->distinct('all_energy_meters.id')
+                    ->latest()
+                    ->skip($request->start)->take($request->length)
+                    ->get();
+
+
+                foreach ($data as $row) {
+
+                    $row->action = $this->generateActionButtons($row); // Add the action buttons
+                }
+
+                return response()->json([
+                    "draw" => $request->draw,  // DataTables draw count
+                    "recordsTotal" => $totalRecords,
+                    "recordsFiltered" => $filteredRecords,
+                    "data" => $data
+                ]); 
+            }
+    
+            $data = DB::table('all_energy_meters')
+                ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+                ->where('meter_cases.meter_case_name_english', '!=', "Used")
+                ->where('household_id', '!=', 0)
+                ->where('all_energy_meters.is_archived', 0)
+                ->select(
+                    DB::raw('meter_cases.meter_case_name_english as name'),
+                    DB::raw('count(*) as number')
+                )
+                ->groupBy('meter_cases.meter_case_name_english')
+                ->get();
+    
+              
+            $array[] = ['Meter Case', 'Total'];
+            
+            foreach($data as $key => $value) {
+    
+                $array[++$key] = [$value->name, $value->number];
+            }
+    
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $regions = Region::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $meterCases = MeterCase::where('is_archived', 0)->get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $energySystems = EnergySystem::where('is_archived', 0)->get();
+            $installationTypes = InstallationType::where('is_archived', 0)->get();
+            $cycleYears = EnergySystemCycle::all();
+ 
+            $totalMeters = AllEnergyMeter::where("is_archived", 0)
+                ->where('meter_number', '!=', 0)
+                ->count();
+
+            $totalHouseholdMeters = DB::table('all_energy_meters')
+                ->join('households', 'all_energy_meters.household_id', 'households.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('meter_number', '!=', 0)
+                ->count();
+
+            $totalHouseholdPublicMeters = DB::table('all_energy_meters')
+                ->join('public_structures', 'all_energy_meters.public_structure_id', 'public_structures.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('public_structures.comet_meter', 0)
+                ->where('meter_number', '!=', 0)
+                ->count();
+
+            return view('users.energy.index', compact('communities', 'energySystemTypes', 
+                'meterCases', 'installationTypes', 'regions', 'totalMeters', 'totalHouseholdMeters',
+                'totalHouseholdPublicMeters', 'cycleYears', 'energySystems'))
+                ->with('energy_users', json_encode($array)
+            );
+        } else {
+
+            return view('errors.not-found');
+        }
+    }
+
+    /**
+     * Get a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEnergyUserData(int $id)
+    {
+        $energy = AllEnergyMeter::find($id);
+        $meterCase = MeterCase::where("id", $energy->meter_case_id)->first();
+        $response = array();
+
+        if(!empty($energy)) {
+
+            $response['meter_number'] = $energy->meter_number;
+            $response['daily_limit'] = $energy->daily_limit;
+            $response['installation_date'] = $energy->installation_date;
+            $response['notes'] = $energy->notes;
+            $response['meter_active'] = $energy->meter_active;
+            $response['meter_case_id'] = $meterCase->meter_case_name_english;
+            $response['id'] = $energy->id;
+
+            $response['success'] = 1;
+        } else {
+
+            $response['success'] = 0;
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $energyUser = AllEnergyMeter::findOrFail($id);
+
+        return response()->json($energyUser);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $energyUser = AllEnergyMeter::findOrFail($id);
+        // die($energyUser);
+        $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
+            ->where("is_archived", 0)
+            ->get();
+        $energyNewDonors = AllEnergyMeterNewDonor::where("all_energy_meter_id", $id)
+            ->where("is_archived", 0)
+            ->get();
+
+        $community_id = Community::findOrFail($energyUser->community_id);
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $communityVendors = DB::table('community_vendors')
+            //->where('community_id', $community_id->id)
+            ->where('community_vendors.is_archived', 0)
+            ->join('vendor_user_names', 'community_vendors.vendor_username_id', 
+                '=', 'vendor_user_names.id')
+            ->select('vendor_user_names.name', 'community_vendors.id as id',
+                'vendor_user_names.id as vendor_username_id')
+            ->groupBy('vendor_user_names.id')
+            ->get();
+        
+        $energySystems = EnergySystem::where('is_archived', 0)->get();
+        
+        $household = Household::findOrFail($energyUser->household_id);
+        $meterCases = MeterCase::where('is_archived', 0)->get();
+        $vendor = VendorUserName::where('id', $energyUser->vendor_username_id)->first();
+        $donors = Donor::where('is_archived', 0)->get();
+
+        $energyDonorsId = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
+            ->where("is_archived", 0)
+            ->pluck('donor_id'); 
+
+        $moreDonors = Donor::where('is_archived', 0)
+            ->whereNotIn('id', $energyDonorsId) 
+            ->get();
+
+        $energyNewDonorsId = AllEnergyMeterNewDonor::where("all_energy_meter_id", $id)
+            ->where("is_archived", 0)
+            ->pluck('donor_id'); 
+
+        $moreNewDonors = Donor::where('is_archived', 0)
+            ->whereNotIn('id', $energyNewDonorsId) 
+            ->get();
+
+        $installationTypes = InstallationType::where('is_archived', 0)->get();
+        $energyCycles = EnergySystemCycle::get();
+
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+
+        $electricityCollectionBoxes = ElectricityCollectionBox::where('is_archived', 0)->get();
+        $electricityPhases = ElectricityPhase::where('is_archived', 0)->get();
+        $allEnergyMeterPhase = AllEnergyMeterPhase::where('is_archived', 0)
+            ->where('all_energy_meter_id', $id)
+            ->first();
+
+        $sharedHouseholdIds = HouseholdMeter::where('energy_user_id', $id)
+            ->where('is_archived', 0)
+            ->pluck('household_id')
+            ->toArray();
+
+        $sharedHouseholdMap = [];
+        if (count($sharedHouseholdIds) > 0) {
+            $sharedHouseholdMap = Household::whereIn('id', $sharedHouseholdIds)
+                ->pluck('english_name', 'id')
+                ->toArray();
+        }
+
+        return view('users.energy.not_active.edit_energy', compact('household', 'communities',
+            'meterCases', 'energyUser', 'communityVendors', 'vendor', 'energySystems', 'electricityPhases',
+            'energyDonors', 'donors', 'installationTypes', 'energyCycles', 'electricityCollectionBoxes',
+            'allEnergyMeterPhase', 'moreDonors', 'energySystemTypes', 'sharedHouseholdIds', 'sharedHouseholdMap',
+            'energyNewDonors', 'moreNewDonors'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateEnergyDonorData(Request $request) 
+    {
+        $energyDonors = DB::table('energy_donors')
+            ->join('communities', 'energy_donors.community_id', 'communities.id')
+            ->join('households', 'energy_donors.household_id', 'households.id')
+            ->join('donors', 'energy_donors.donor_id', 'donors.id')
+            ->where('energy_donors.household_id', $energyUser->household_id)
+            ->select('energy_donors.id as id', 'communities.english_name as community_name',
+                'households.english_name as household_name',
+                'donors.donor_name as donor_name', 'energy_donors.household_id',
+                'donors.id as donor_id', 'energy_donors.community_id')
+            ->get();
+        
+        // if($request->donor_id) {
+        //     foreach($request->donor_id as $donorId) {
+        //         $donorUser = EnergyDonor::findOrFail($energyDonor->id);
+        //         $donorUser->donor_id = $donorId;
+        //         $donorUser->save();
+        //     }
+        // }
+
+        if($request->donors) {
+            foreach($request->donors as $donorId) {
+                EnergyDonor::create([
+                    'donor_id' => $donorId,
+                    'community_id' => $energyUser->community_id,
+                    'household_id' => $energyUser->household_id,
+                ]);
+            }
+        }
+
+        return response()->json(['success'=> 'Energy User updated successfully!']);
+    }
+
+    /**
+     * Get a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEnergyUserDonors(int $id)
+    {
+        $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)->get();
+
+        return response()->json($energyDonors);
+    }
+
+    /** 
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editDonor($id)
+    {
+        $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id);
+
+        return view('users.energy.not_active.donor_edit', compact('energyDonors'));
+    }
+ 
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $energyUser = AllEnergyMeter::find($id);
+
+        $oldMeterCase = $energyUser->meter_case_id;
+        // capture previous energy system type so we can detect changes to FBS (type id 2)
+        $oldEnergySystemType = $energyUser->energy_system_type_id;
+
+        if($request->energy_system_cycle_id) {
+
+            $energyUser->energy_system_cycle_id = $request->energy_system_cycle_id;
+
+            if($energyUser->household_id) {
+
+                $householdUser = Household::where("id", $energyUser->household_id)->first();
+                if($householdUser) {
+
+                    $householdUser->energy_system_cycle_id = $request->energy_system_cycle_id;
+                    $householdUser->save();
+                }
+            }
+        }
+
+        if($energyUser->household_id) {
+
+            $displacedHousehold = DisplacedHousehold::where('household_id', 
+                $energyUser->household_id)->first();
+                
+            if($displacedHousehold) {
+                
+                if($request->community_id) {
+    
+                    $community = Community::find($request->community_id);
+    
+                    if (!$community) {
+                        
+                        return redirect()->back()->withErrors(['community_id' => 'Community not found.']);
+                    } else {
+                            
+                        $displacedHousehold->new_community_id = $request->community_id;
+                        $displacedHousehold->sub_region_id = $community->sub_region_id;
+                    }
+                }
+                if($request->energy_system_id) $displacedHousehold->new_energy_system_id = $request->energy_system_id;
+                if($request->meter_number) $displacedHousehold->new_meter_number = $request->meter_number;
+                $displacedHousehold->displaced_household_status_id = 4;
+                $displacedHousehold->system_retrieved = "Yes";
+                $displacedHousehold->save();
+            }
+        }
+
+
+        $meterNumber = $energyUser->meter_number;
+
+        // This code is for updating the fake_meter_numbers for the shared ones if the main meter number is changed
+        if ($request->meter_number === $meterNumber) {
+
+        } else {
+
+            $energyUser->meter_number = $request->meter_number;
+
+            $sharedEnergyUsers = DB::table('household_meters')
+                ->leftJoin('households', 'household_meters.household_id', 'households.id')
+                ->leftJoin('public_structures', 'household_meters.public_structure_id', 
+                    'public_structures.id')
+                ->join('all_energy_meters', 'household_meters.energy_user_id', 'all_energy_meters.id')
+                ->leftJoin('all_energy_meters as shared_energy_users', 'shared_energy_users.household_id', 'households.id')
+                ->join('households as main_users', 'all_energy_meters.household_id', 'main_users.id')
+                ->where('household_meters.is_archived', 0)
+                ->where('all_energy_meters.id', $id)
+                ->select(
+                    DB::raw('IFNULL(shared_energy_users.fake_meter_number, public_structures.fake_meter_number) 
+                        as fake_meter_number'),
+                    'all_energy_meters.meter_number', 'main_users.id as main_user_id',
+                    'households.id as shared_household_id', 'public_structures.id as shared_public_id'
+                    )
+                ->distinct()
+                ->get();
+
+            foreach($sharedEnergyUsers as $sharedEnergyUser) {
+                
+                //die( $sharedEnergyUser);
+                $newFakeMeterNumber = null;
+                $incrementalNumber = 1;
+                if($sharedEnergyUser->fake_meter_number) $newFakeMeterNumber = SequenceHelper::updateSequence($sharedEnergyUser->fake_meter_number, $request->meter_number); 
+
+                else {
+
+                    $newFakeMeterNumber = SequenceHelper::generateSequence($sharedEnergyUser->meter_number, $incrementalNumber);
+                }
+
+                $exist = AllEnergyMeter::where('fake_meter_number', $newFakeMeterNumber)->first();
+    
+                if($exist) {
+                } else {
+
+                    $allEnergyMeter = null;
+                    if($sharedEnergyUser->shared_household_id) {
+                        
+                        $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
+                            ->whereNull("meter_number")
+                            ->where("household_id", $sharedEnergyUser->shared_household_id)
+                            ->first();
+                    } else if($sharedEnergyUser->shared_public_id) {
+
+                        $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
+                            ->whereNull("meter_number")
+                            ->where("public_structure_id", $sharedEnergyUser->shared_public_id)
+                            ->first();
+                    }
+                    if($allEnergyMeter) {
+
+                        $allEnergyMeter->fake_meter_number = $newFakeMeterNumber;
+                        $allEnergyMeter->save();
+                    }
+                }
+            }
+        }
+
+        
+        $energyUser->daily_limit = $request->daily_limit;
+        $energyUser->installation_date = $request->installation_date;
+        if($request->installation_type_id) $energyUser->installation_type_id = $request->installation_type_id;
+        if($request->ground_connected) $energyUser->ground_connected = $request->ground_connected;
+        if($request->meter_active) $energyUser->meter_active = $request->meter_active;
+        if($request->vendor_username_id) $energyUser->vendor_username_id = $request->vendor_username_id;
+
+        if($request->energy_system_id) $energyUser->energy_system_id = $request->energy_system_id;
+        if($request->energy_system_type_id) $energyUser->energy_system_type_id = $request->energy_system_type_id;
+        
+        if($request->meter_case_id) {
+
+            $energyUser->meter_case_id = $request->meter_case_id;
+
+            if($request->meter_case_id != $oldMeterCase) {
+
+                $meterCaseHistory = new AllEnergyMeterHistoryCase();
+                $meterCaseHistory->old_meter_case_id = $oldMeterCase;
+                $meterCaseHistory->new_meter_case_id = $request->meter_case_id;
+                $meterCaseHistory->all_energy_meter = $id;
+                if($request->last_update_date) $meterCaseHistory->last_update_date = $request->last_update_date;
+                $meterCaseHistory->save();
+            }
+        }
+        
+        if($request->community_id) $energyUser->community_id = $request->community_id;
+
+        if($request->meter_case_id == 1 || $request->meter_case_id == 2 ||
+            $request->meter_case_id == 3 || $request->meter_case_id == 4 ||
+            $request->meter_case_id == 5 || $request->meter_case_id == 6 ||
+            $request->meter_case_id == 7 || $request->meter_case_id == 8 ||
+            $request->meter_case_id == 9 || $request->meter_case_id == 10 ||
+            $request->meter_case_id == 11 || $request->meter_case_id == 12 ||
+            $request->meter_case_id == 13 || $request->meter_case_id == 14) 
+        {
+
+            if($energyUser->household_id) {
+
+                $household = Household::findOrFail($energyUser->household_id);
+                $household->household_status_id = 4;
+                $household->energy_service = "Yes";
+                $household->energy_system_status = "Served";
+                $household->energy_meter = "Yes";
+                $household->save();
+            }
+            
+            $energyUser->meter_case_id = $request->meter_case_id;
+        }
+
+        $energyUser->save(); 
+
+        // Determine whether to apply FBS-upgrade to shared holders.
+        // Apply when the update request explicitly sets the energy system type to FBS (2),
+        // or when the saved record changed from a non-FBS type to FBS.
+        $shouldApplyFbsUpgrade = false;
+        if ($request->has('energy_system_type_id') && intval($request->energy_system_type_id) === 2) {
+            $shouldApplyFbsUpgrade = true;
+        } elseif ($energyUser->energy_system_type_id == 2 && $oldEnergySystemType != 2) {
+            $shouldApplyFbsUpgrade = true;
+        }
+
+
+        // Handle removals of shared FBS users requested from UI
+        if ($request->has('remove_shared_fbs')) {
+            $removeIds = $request->input('remove_shared_fbs');
+            if (is_array($removeIds) && count($removeIds) > 0) {
+                foreach ($removeIds as $rmId) {
+                    if (!$rmId) continue;
+                    $hm = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                        ->where('household_id', $rmId)
+                        ->where('is_archived', 0)
+                        ->first();
+                    if ($hm) {
+                        $hm->is_archived = 1;
+                        $hm->save();
+                    }
+                }
+            }
+        }
+
+        // Handle FBS Shared users logic 
+        if ($request->has('shared_users_fbs')) {
+            $sharedIds = $request->input('shared_users_fbs');
+            if (is_array($sharedIds)) {
+                foreach ($sharedIds as $sharedHouseholdId) {
+                    if (!$sharedHouseholdId) continue;
+
+                    $household = Household::find($sharedHouseholdId);
+                    if (!$household) continue;
+
+                    $existingHM = HouseholdMeter::where('household_id', $sharedHouseholdId)
+                        ->where('is_archived', 0)->first();
+
+                    $sharedEnergy = AllEnergyMeter::where('household_id', $sharedHouseholdId)
+                        ->where('is_archived', 0)->first();
+
+                    $energyRequest = EnergyRequestSystem::where('household_id', $sharedHouseholdId)
+                        ->where('is_archived', 0)->orderBy('id', 'desc')->first();
+
+                    //  Already exists in household_meters
+                    if ($existingHM) {
+                        // Case 1: belongs to another main holder
+                        if ($existingHM->energy_user_id != $energyUser->id) {
+                            $existingHM->energy_user_id = $energyUser->id;
+                            $existingHM->save();
+
+                            // Ensure there is an AllEnergyMeter record for the shared household
+                            if (!$sharedEnergy) {
+                                $sharedEnergy = AllEnergyMeter::whereNull('meter_number')
+                                    ->where('household_id', $sharedHouseholdId)->first();
+                            }
+
+                            if ($sharedEnergy) {
+                                // generate or update fake meter number to match current main
+                                if ($sharedEnergy->fake_meter_number) {
+                                    $newFake = SequenceHelper::updateSequence($sharedEnergy->fake_meter_number, $energyUser->meter_number);
+                                } else {
+                                    $increment = 1;
+                                    $newFake = SequenceHelper::generateSequence($energyUser->meter_number, $increment);
+                                }
+
+                                // ensure uniqueness
+                                $i = 1;
+                                while (AllEnergyMeter::where('fake_meter_number', $newFake)->first()) {
+                                    $i++;
+                                    $newFake = SequenceHelper::generateSequence($energyUser->meter_number, $i);
+                                }
+
+                                $sharedEnergy->fake_meter_number = $newFake;
+                                $sharedEnergy->meter_number = null;
+                                $sharedEnergy->is_main = "No";
+                                $sharedEnergy->energy_system_id = $energyUser->energy_system_id;
+                                $sharedEnergy->energy_system_type_id = $energyUser->energy_system_type_id;
+                                $sharedEnergy->installation_type_id = $energyUser->installation_type_id;
+                                $sharedEnergy->community_id = $energyUser->community_id;
+                                $sharedEnergy->save();
+                            } else {
+                               
+                                $inc = 1;
+                                $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                                while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                                    $inc++;
+                                    $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                                }
+
+                                $newShared = new AllEnergyMeter();
+                                $newShared->household_id = $sharedHouseholdId;
+                                $newShared->community_id = $energyUser->community_id;
+                                $newShared->meter_number = null;
+                                $newShared->fake_meter_number = $fake;
+                                $newShared->is_main = "No";
+                                $newShared->energy_system_id = $energyUser->energy_system_id;
+                                $newShared->energy_system_type_id = $energyUser->energy_system_type_id;
+                                $newShared->installation_type_id = $energyUser->installation_type_id;
+                                $newShared->save();
+                            }
+                        } else {
+                            // already belongs to this main holder 
+                            if ($sharedEnergy) {
+                                $sharedEnergy->energy_system_type_id = $energyUser->energy_system_type_id;
+                                $sharedEnergy->energy_system_id = $energyUser->energy_system_id;
+                                $sharedEnergy->save();
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    // No existing household_meter -> either convert main to shared, requested, or new shared
+                    if ($sharedEnergy && $sharedEnergy->meter_number && $sharedEnergy->meter_number != 0) {
+                        //user was originally a main holder -> convert to shared
+                        $sharedEnergy->meter_number = null;
+                        $sharedEnergy->is_main = "No";
+
+                        $inc = 1;
+                        $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                        while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                            $inc++;
+                            $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                        }
+                        $sharedEnergy->fake_meter_number = $fake;
+                        $sharedEnergy->energy_system_type_id = $energyUser->energy_system_type_id;
+                        $sharedEnergy->energy_system_id = $energyUser->energy_system_id;
+                        $sharedEnergy->save();
+
+                        $existingHm = HouseholdMeter::where('household_id', $sharedHouseholdId)
+                            ->where('energy_user_id', $energyUser->id)
+                            ->first();
+
+                        if ($existingHm) {
+                            if ($existingHm->is_archived == 1) $existingHm->is_archived = 0;
+                            if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                                $existingHm->fbs_upgrade_new = 1;
+                            }
+                            $existingHm->save();
+                        } else {
+                            $hm = new HouseholdMeter();
+                            $hm->household_id = $sharedHouseholdId;
+                            $hm->energy_user_id = $energyUser->id;
+                            $hm->is_archived = 0;
+                            if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                                $hm->fbs_upgrade_new = 1;
+                            }
+                            $hm->save();
+                        }
+
+                        continue;
+                    }
+
+                    if ($energyRequest) {
+                        //  requested user -> create or update all_energy_meters and add household_meters
+                        if (!$sharedEnergy) {
+                            $inc = 1;
+                            $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                            while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                                $inc++;
+                                $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                            }
+
+                            $new = new AllEnergyMeter();
+                            $new->household_id = $sharedHouseholdId;
+                            $new->community_id = $energyUser->community_id;
+                            $new->meter_number = 0;
+                            $new->fake_meter_number = $fake;
+                            $new->is_main = "No";
+                            $new->energy_system_id = $energyUser->energy_system_id;
+                            $new->energy_system_type_id = $energyRequest->recommendede_energy_system_id ?: $energyUser->energy_system_type_id;
+                            $new->installation_type_id = $energyUser->installation_type_id;
+                            $new->save();
+                            $sharedEnergy = $new;
+                        } else {
+                            if (!$sharedEnergy->fake_meter_number) {
+                                $inc = 1;
+                                $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                                while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                                    $inc++;
+                                    $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                                }
+                                $sharedEnergy->fake_meter_number = $fake;
+                            }
+                            $sharedEnergy->energy_system_type_id = $energyRequest->recommendede_energy_system_id ?: $energyUser->energy_system_type_id;
+                            $sharedEnergy->energy_system_id = $energyUser->energy_system_id;
+                            $sharedEnergy->is_main = "No";
+                            $sharedEnergy->save();
+                        }
+
+                        $existingHm = HouseholdMeter::where('household_id', $sharedHouseholdId)
+                            ->where('energy_user_id', $energyUser->id)
+                            ->first();
+
+                        if ($existingHm) {
+                            if ($existingHm->is_archived == 1) $existingHm->is_archived = 0;
+                            if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                                $existingHm->fbs_upgrade_new = 1;
+                            }
+                            $existingHm->save();
+                        } else {
+                            $hm = new HouseholdMeter();
+                            $hm->household_id = $sharedHouseholdId;
+                            $hm->energy_user_id = $energyUser->id;
+                            $hm->is_archived = 0;
+                            if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                                $hm->fbs_upgrade_new = 1;
+                            }
+                            $hm->save();
+                        }
+
+                        continue;
+                    }
+
+                    // add shared link and create shared energy record if missing
+                    if (!$sharedEnergy) {
+                        $inc = 1;
+                        $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                        while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                            $inc++;
+                            $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                        }
+
+                        $new = new AllEnergyMeter();
+                        $new->household_id = $sharedHouseholdId;
+                        $new->community_id = $energyUser->community_id;
+                        $new->meter_number = null;
+                        $new->fake_meter_number = $fake;
+                        $new->is_main = "No";
+                        $new->energy_system_id = $energyUser->energy_system_id;
+                        $new->energy_system_type_id = $energyUser->energy_system_type_id;
+                        $new->installation_type_id = $energyUser->installation_type_id;
+                        $new->save();
+                    }
+
+                    $existingHm = HouseholdMeter::where('household_id', $sharedHouseholdId)
+                        ->where('energy_user_id', $energyUser->id)
+                        ->first();
+
+                    if ($existingHm) {
+                        if ($existingHm->is_archived == 1) $existingHm->is_archived = 0;
+                        if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                            $existingHm->fbs_upgrade_new = 1;
+                        }
+                        $existingHm->save();
+                    } else {
+                        $hm = new HouseholdMeter();
+                        $hm->household_id = $sharedHouseholdId;
+                        $hm->energy_user_id = $energyUser->id;
+                        $hm->is_archived = 0;
+                        if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                            $hm->fbs_upgrade_new = 1;
+                        }
+                        $hm->save();
+                    }
+                }
+            }
+        }
+
+        if($energyUser->meter_active == "Yes" || $energyUser->meter_case_id == 1) {
+
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->where('is_archived', 0)
+                ->get();
+
+            if($householdMeters != []) {
+
+                foreach($householdMeters as $householdMeter) {
+
+                    if($householdMeter->household_id) {
+
+                        $household = Household::find($householdMeter->household_id);
+                        if($household) {
+                            
+                            $household->household_status_id = 4;
+                            $household->energy_system_status = "Served";
+                            $household->save();
+                        }
+                    }
+                }
+            } 
+        }
+
+        if($request->donors) {
+
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->where('is_archived', 0)
+                ->get();
+            
+            foreach($householdMeters as $householdMeter) {
+
+                $allEnergyMeter = AllEnergyMeter::where('household_id', $householdMeter->household_id)->first();
+                for($i=0; $i < count($request->donors); $i++) {
+
+                    $energyMeterDonor = new AllEnergyMeterDonor();
+                    $energyMeterDonor->donor_id = $request->donors[$i];
+                    $energyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                    $energyMeterDonor->community_id = $energyUser->community_id;
+                    $energyMeterDonor->save();
+                }
+            }
+
+            for($i=0; $i < count($request->donors); $i++) {
+
+                $energyMeterDonor = new AllEnergyMeterDonor();
+                $energyMeterDonor->donor_id = $request->donors[$i];
+                $energyMeterDonor->all_energy_meter_id = $id;
+                $energyMeterDonor->community_id = $energyUser->community_id;
+                $energyMeterDonor->save();
+            }
+        }
+
+        if($request->new_donors) {
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->where('is_archived', 0)
+                ->get();
+            
+            foreach($householdMeters as $householdMeter) {
+
+                $allEnergyMeter = AllEnergyMeter::where('household_id', $householdMeter->household_id)->first();
+                for($i=0; $i < count($request->new_donors); $i++) {
+
+                    $energyMeterDonor = new AllEnergyMeterDonor();
+                    $energyMeterDonor->donor_id = $request->new_donors[$i];
+                    $energyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                    $energyMeterDonor->community_id = $energyUser->community_id;
+                    $energyMeterDonor->save();
+                }
+            }
+
+            for($i=0; $i < count($request->new_donors); $i++) {
+
+                $energyMeterDonor = new AllEnergyMeterDonor();
+                $energyMeterDonor->donor_id = $request->new_donors[$i];
+                $energyMeterDonor->all_energy_meter_id = $id;
+                $energyMeterDonor->community_id = $energyUser->community_id;
+                $energyMeterDonor->save();
+            }
+        }
+
+        // for adding more new donors
+        if (!empty($request->ndonors)) {
+
+            $donorIds = array_unique($request->ndonors);
+
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->whereNotNull('household_id')
+                ->where('is_archived', 0)
+                ->get();
+
+            foreach ($householdMeters as $householdMeter) {
+
+                $allEnergyMeter = AllEnergyMeter::where('household_id', $householdMeter->household_id)->first();
+
+                if (!$allEnergyMeter) {
+                    continue;
+                }
+
+                foreach ($donorIds as $donorId) {
+                    AllEnergyMeterNewDonor::firstOrCreate(
+                        [
+                            'donor_id' => $donorId,
+                            'all_energy_meter_id' => $allEnergyMeter->id,
+                        ],
+                        [
+                            'community_id' => $allEnergyMeter->community_id,
+                        ]
+                    );
+                }
+            }
+
+            $publicMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->whereNotNull('public_structure_id')
+                ->where('is_archived', 0)
+                ->get();
+
+            foreach ($publicMeters as $publicMeter) {
+
+                $allEnergyMeter = AllEnergyMeter::where('public_structure_id', $publicMeter->public_structure_id)->first();
+
+                if (!$allEnergyMeter) {
+                    continue;
+                }
+
+                foreach ($donorIds as $donorId) {
+                    AllEnergyMeterNewDonor::firstOrCreate(
+                        [
+                            'donor_id' => $donorId,
+                            'all_energy_meter_id' => $allEnergyMeter->id,
+                        ],
+                        [
+                            'community_id' => $allEnergyMeter->community_id,
+                        ]
+                    );
+                }
+            }
+
+            foreach ($donorIds as $donorId) {
+                AllEnergyMeterNewDonor::firstOrCreate(
+                    [
+                        'donor_id' => $donorId,
+                        'all_energy_meter_id' => $id,
+                    ],
+                    [
+                        'community_id' => $energyUser->community_id,
+                    ]
+                );
+            }
+        }
+
+
+        // add new donors
+        if (!empty($request->new_ndonors)) {
+
+            $donorIds = array_unique($request->new_ndonors);
+
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->whereNotNull('household_id')
+                ->where('is_archived', 0)
+                ->get();
+
+            foreach ($householdMeters as $householdMeter) {
+
+                $allEnergyMeter = AllEnergyMeter::where('household_id', $householdMeter->household_id)->first();
+
+                if (!$allEnergyMeter) {
+                    continue;
+                }
+
+                foreach ($donorIds as $donorId) {
+                    AllEnergyMeterNewDonor::firstOrCreate(
+                        [
+                            'donor_id' => $donorId,
+                            'all_energy_meter_id' => $allEnergyMeter->id,
+                        ],
+                        [
+                            'community_id' => $allEnergyMeter->community_id,
+                        ]
+                    );
+                }
+            }
+
+            $publicMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->whereNotNull('public_structure_id')
+                ->where('is_archived', 0)
+                ->get();
+
+            foreach ($publicMeters as $publicMeter) {
+
+                $allEnergyMeter = AllEnergyMeter::where('public_structure_id', $publicMeter->public_structure_id)->first();
+
+                if (!$allEnergyMeter) {
+                    continue;
+                }
+
+                foreach ($donorIds as $donorId) {
+                    AllEnergyMeterNewDonor::firstOrCreate(
+                        [
+                            'donor_id' => $donorId,
+                            'all_energy_meter_id' => $allEnergyMeter->id,
+                        ],
+                        [
+                            'community_id' => $allEnergyMeter->community_id,
+                        ]
+                    );
+                }
+            }
+
+            foreach ($donorIds as $donorId) {
+                AllEnergyMeterNewDonor::firstOrCreate(
+                    [
+                        'donor_id' => $donorId,
+                        'all_energy_meter_id' => $id,
+                    ],
+                    [
+                        'community_id' => $energyUser->community_id,
+                    ]
+                );
+            }
+        }
+
+
+
+        // CI & PH
+        if($request->electricity_collection_box_id || $request->electricity_phase_id) {
+
+            $existingEnergyMeterPhase = AllEnergyMeterPhase::where("all_energy_meter_id", $id)->first();
+            if($existingEnergyMeterPhase) {
+
+                $existingEnergyMeterPhase->electricity_collection_box_id = $request->electricity_collection_box_id;
+                $existingEnergyMeterPhase->electricity_phase_id = $request->electricity_phase_id;
+                $existingEnergyMeterPhase->save();
+            } else {
+
+                $allEnergyMeterPhase = new AllEnergyMeterPhase();
+                $allEnergyMeterPhase->all_energy_meter_id = $id;
+                $allEnergyMeterPhase->electricity_collection_box_id = $request->electricity_collection_box_id;
+                $allEnergyMeterPhase->electricity_phase_id = $request->electricity_phase_id;
+                $allEnergyMeterPhase->save();
+            }
+        }
+
+        return redirect('/all-meter')->with('message', 'Energy Holder Updated Successfully!');
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergyUser(Request $request)
+    {
+        $id = $request->id;
+
+        $user = AllEnergyMeter::find($id);
+        $sharedMeters = HouseholdMeter::where("energy_user_id", $id)->get();
+
+        if($sharedMeters) {
+            foreach($sharedMeters as $sharedMeter) {
+                $sharedMeter->is_archived = 1;
+                $sharedMeter->save();
+            }
+        }
+
+        if($user) {
+
+            $user->is_archived = 1;
+            $user->save();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Energy Holder Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Check the meter number 
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function checkMeterNumber(Request $request)
+    {
+        //die($request);
+        // Validate the input
+        $request->validate([
+
+            'meter_number' => 'required|digits:11|unique:all_energy_meters,meter_number',
+        ], [
+
+            'meter_number.digits' => 'The meter number must be exactly 11 digits.',
+            'meter_number.unique' => 'This meter number already exists in the database.',
+        ]);
+
+        // Return a JSON response with success message
+        return response()->json([
+            'success' => true,
+            'message' => 'Meter number updated successfully.'
+        ]);
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergyDonor(Request $request)
+    {
+        $id = $request->id;
+        $mainEnergyDonor = AllEnergyMeterDonor::findOrFail($id);
+
+        $user = AllEnergyMeterDonor::find($id);
+        $sharedMeters = HouseholdMeter::where("energy_user_id", $user->all_energy_meter_id)->get();
+        
+        if($user) {
+
+            $user->delete(); 
+
+            if($sharedMeters) {
+                foreach($sharedMeters as $sharedMeter) {
+
+                    $sharedEnergyMeter = AllEnergyMeter::where("household_id", $sharedMeter->household_id)->first();
+                    $sharedDonor = AllEnergyMeterDonor::where("all_energy_meter_id", $sharedEnergyMeter->id)
+                        ->where('donor_id', $mainEnergyDonor->donor_id)
+                        ->first();
+        
+                    $sharedDonor->delete();
+                }
+            }
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Energy Donor Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+        /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergyNewDonor(Request $request)
+    {
+        $id = $request->id;
+        $mainEnergyDonor = AllEnergyMeterNewDonor::findOrFail($id);
+
+        $user = AllEnergyMeterNewDonor::find($id);
+        $sharedMeters = HouseholdMeter::where("energy_user_id", $user->all_energy_meter_id)->get();
+        
+        if($user) {
+
+            $user->delete(); 
+
+            if($sharedMeters) {
+                foreach($sharedMeters as $sharedMeter) {
+
+                    $sharedEnergyMeter = AllEnergyMeter::where("household_id", $sharedMeter->household_id)->first();
+                    $sharedDonor = AllEnergyMeterNewDonor::where("all_energy_meter_id", $sharedEnergyMeter->id)
+                        ->where('donor_id', $mainEnergyDonor->donor_id)
+                        ->first();
+        
+                    $sharedDonor->delete();
+                }
+            }
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Energy Donor Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+        $request->validate([
+            'file_type' => 'required|in:all,comet,refrigerator,deactivated'
+        ]);
+
+        if($request->file_type == "all") return Excel::download(new AllEnergyExport($request), 'All Energy Meters.xlsx');
+        else if($request->file_type == "comet") return Excel::download(new CometMetresExport($request), 'Comet Meters.xlsx');
+        else if($request->file_type == "refrigerator") return Excel::download(new RefrigeratorExport($request), 'Refrigerator Holders.xlsx');
+        else if($request->file_type == "deactivated") return Excel::download(new ReactivatedEnergyExport($request), 'Reactivated Holders.xlsx');
+    } 
+    
+    
+    public function exportConfirmedHousehold(Request $request) 
+    {
+                
+        return Excel::download(new ConfirmedHousehold($request), 'MISC Confirmed.xlsx');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function import(Request $request) 
+    {
+        // $allEnergyMeters = AllEnergyMeter::where("is_archived", 0)
+        //     ->where("meter_number", "!=", 0)
+        //     ->get();
+
+        $allPurchaseMeters = AllEnergyPurchaseMeter::get();
+
+        // // First, get all the IDs from the AllEnergyPurchaseMeter
+        // $usedMeterIds = AllEnergyPurchaseMeter::pluck('all_energy_meter_id');
+
+        // // Now get all energy meters that are not in the usedMeterIds
+        // $unusedEnergyMeters = AllEnergyMeter::where("is_archived", 0)
+        //     ->where("meter_number", "!=", 0)
+        //     ->whereNotIn('id', $usedMeterIds)
+        //     ->select("meter_number", "id", "community_id")
+        //     ->get();
+
+        // foreach($allPurchaseMeters as $allPurchaseMeter) {
+
+        //     if($allPurchaseMeter->purchase_date2 ==  $allPurchaseMeter->purchase_date3 ) {
+
+        //         $allPurchaseMeter->purchase_date3 = NULL;
+        //         $allPurchaseMeter->days3 = NULL;
+        //         $allPurchaseMeter->payment3 = NULL;
+        //         $allPurchaseMeter->save();
+        //     }
+        // }
+
+        
+       // die($unusedEnergyMeters);
+
+        // try {
+        //     if (DB::transactionLevel() > 0) {
+        //         DB::commit();
+        //     }
+            
+        //     AllEnergyVendingMeter::truncate();
+    
+        // } catch (\Exception $e) {
+            
+        //     DB::rollBack();
+        // }
+
+        try {
+ 
+            //Excel::import(new PurchaseEnergyImport1(1), $request->file('first_file'));
+
+            //return Excel::download(new PurchaseEnergyExport($request), 'Purchase Report.xlsx');
+
+            return Excel::download(new PurchaseEnergyExport1($request), 'Purchase Report.xlsx');
+
+            return back()->with('success', 'Purchase Report Exported successfully!');
+        } catch (\Exception $e) {
+           
+            return back()->with('error', 'Error occurred during import: ' . $e->getMessage());
+        }
+    }
+}

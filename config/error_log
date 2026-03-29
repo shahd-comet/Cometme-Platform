@@ -1,0 +1,36 @@
+[16-May-2024 20:36:13 America/Boise] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home1/cometmei/public_html/config/database.php:18
+Stack trace:
+#0 {main}
+  thrown in /home1/cometmei/public_html/config/database.php on line 18
+[07-Jun-2024 01:48:18 America/Boise] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home1/cometmei/public_html/config/cache.php:18
+Stack trace:
+#0 {main}
+  thrown in /home1/cometmei/public_html/config/cache.php on line 18
+[21-Jun-2024 01:56:07 America/Boise] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home1/cometmei/public_html/config/cache.php:18
+Stack trace:
+#0 {main}
+  thrown in /home1/cometmei/public_html/config/cache.php on line 18
+[16-Sep-2024 11:43:28 America/Boise] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home1/cometmei/public_html/config/database.php:18
+Stack trace:
+#0 {main}
+  thrown in /home1/cometmei/public_html/config/database.php on line 18
+[18-Feb-2025 10:51:04 America/Boise] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home1/cometmei/public_html/config/app.php:18
+Stack trace:
+#0 {main}
+  thrown in /home1/cometmei/public_html/config/app.php on line 18
+[21-Feb-2025 10:11:31 America/Boise] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home1/cometmei/public_html/config/app.php:18
+Stack trace:
+#0 {main}
+  thrown in /home1/cometmei/public_html/config/app.php on line 18
+[22-Feb-2025 10:29:03 America/Boise] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home1/cometmei/public_html/config/app.php:18
+Stack trace:
+#0 {main}
+  thrown in /home1/cometmei/public_html/config/app.php on line 18
+[23-Mar-2025 01:57:46 America/Boise] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home1/cometmei/public_html/config/app.php:18
+Stack trace:
+#0 {main}
+  thrown in /home1/cometmei/public_html/config/app.php on line 18
+[04-Jan-2026 09:29:38 America/Boise] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home1/cometmei/public_html/config/database.php:18
+Stack trace:
+#0 {main}
+  thrown in /home1/cometmei/public_html/config/database.php on line 18

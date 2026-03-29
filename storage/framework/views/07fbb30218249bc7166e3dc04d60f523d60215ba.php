@@ -1,0 +1,803 @@
+
+
+
+<?php $__env->startSection('title', 'Dashboard'); ?>
+
+<?php echo $__env->make('layouts.all', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+<?php $__env->startSection('content'); ?>
+<style>
+    .leaflet-map {
+        width: 100%;
+        height: 120vh; /* This will make the map take up the full height of the viewport */
+    }
+</style>
+
+<h1>
+  Welcome <?php echo e(Auth::guard('user')->user()->name); ?>  
+</h1> 
+
+<div class="col-12">
+  <div class="card mb-4">
+    <h5 class="card-header">
+      <div class="row">
+        <div class="col-xl-9 col-lg-9 col-md-9">
+          Map of Communities
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-3">
+          <fieldset class="form-group">
+            <button class="btn btn-dark" id="clearFiltersButton">
+              <i class='fa-solid fa-eraser'></i>
+                Clear Filters
+            </button>
+          </fieldset>
+        </div>
+        <!--<?php if(Auth::guard('user')->user()->user_type_id == 1): ?>-->
+        <!--<div class="col-xl-3 col-lg-3 col-md-3">-->
+        <!--  <fieldset class="form-group">-->
+        <!--    <button class="btn btn-dark" id="exportSVGButton">-->
+        <!--      <i class='fa-solid fa-eraser'></i>-->
+        <!--        Export SVG-->
+        <!--    </button>-->
+        <!--  </fieldset>-->
+        <!--</div>-->
+        <!--<?php endif; ?>-->
+      </div>
+    </h5>
+    <div class="card-body">
+      <form method="POST" enctype='multipart/form-data' id="communityFilterMapForm">
+        <?php echo csrf_field(); ?>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="communities[]" class="selectpicker form-control" 
+                data-live-search="true" id="filterByCommunity" multiple>
+                  <option disabled selected>Filter by Community</option>
+                  <?php $__currentLoopData = $communities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $community): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                  <option value="<?php echo e($community->id); ?>">
+                    <?php echo e($community->english_name); ?>
+                  </option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="regions[]" class="selectpicker form-control" 
+                data-live-search="true" id="filterByRegion" multiple>
+                  <option disabled selected>Filter by Regions</option>
+                  <?php $__currentLoopData = $regions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $region): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                  <option value="<?php echo e($region->id); ?>">
+                    <?php echo e($region->english_name); ?>
+                  </option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="sub_regions[]" class="selectpicker form-control" 
+                data-live-search="true" multiple>
+                  <option disabled selected>Filter by Sub Regions</option>
+                  <?php $__currentLoopData = $subregions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subregion): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                  <option value="<?php echo e($subregion->id); ?>">
+                    <?php echo e($subregion->english_name); ?>
+                  </option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="bedouin_fallah[]" class="selectpicker form-control" 
+                data-live-search="true" multiple>
+                  <option disabled selected>Filter by Bedouin/Fallah</option>
+                  <option value="bedouin">Bedouin</option>
+                  <option value="fallah">Fallah</option>
+                </select> 
+              </fieldset>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="services[]"
+                  class="selectpicker form-control" 
+                  data-live-search="true" multiple>
+                  <option disabled selected>Filter by Services</option>
+                  <?php $__currentLoopData = $services; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $service): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($service->id); ?>">
+                      <?php echo e($service->service_name); ?>
+                    </option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="years[]" class="selectpicker form-control" 
+                  data-live-search="true" multiple>
+                  <option disabled selected>Filter by Service Year</option>
+                  <?php
+                    $startYear = 2010; // C
+                    $currentYear = date("Y");
+                  ?>
+                  <?php for($year = $currentYear; $year >= $startYear; $year--): ?>
+                    <option value="<?php echo e($year); ?>"><?php echo e($year); ?></option>
+                  <?php endfor; ?>
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="statuses[]" class="selectpicker form-control" 
+                data-live-search="true" multiple>
+                  <option disabled selected>Filter by Community Statuses</option>
+                  <?php $__currentLoopData = $statuses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                  <option value="<?php echo e($status->id); ?>">
+                    <?php echo e($status->name); ?>
+                  </option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="system_types[]"
+                  class="selectpicker form-control" 
+                  data-live-search="true" multiple>
+                  <option disabled selected>Filter by System Types</option>
+                  <?php $__currentLoopData = $energySystemTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $energySystemType): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($energySystemType->id); ?>">
+                      <?php echo e($energySystemType->name); ?>
+                    </option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select> 
+              </fieldset>
+            </div>
+          </div><br> 
+          <div class="row">
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="donors[]" class="selectpicker form-control" 
+                  data-live-search="true" multiple>
+                  <option disabled selected>Filter by Donors</option>
+                  <?php $__currentLoopData = $donors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $donor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($donor->id); ?>">
+                      <?php echo e($donor->donor_name); ?>
+                    </option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select> 
+              </fieldset>
+            </div> 
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="incidents[]" class="selectpicker form-control" 
+                data-live-search="true" multiple>
+                  <option disabled selected>Filter by Incidents</option>
+                  <option value="mg">MG</option>
+                  <option value="fbs">FBS</option>
+                  <option value="water">Water</option>
+                  <option value="internet">Internet</option>
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <button class="btn btn-info" id="communityFilterMapButton" type="button">
+                  <i class='fa-solid fa-map'></i>
+                  View Filtered Map
+                </button>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </form>
+      
+      <div class="leaflet-map" id="layerControl1"></div>
+      <div class="leaflet-map" id="clearMapControl"></div>
+      <div class="leaflet-map" id="layerControlFilter"></div>
+    </div>
+  </div>
+</div>
+
+<h4> Active Services Users
+  <span style="font-size:15px"><a href="<?php echo e('all-active'); ?>" target="_blank">View details</a></span>
+</h4>
+<?php echo $__env->make('shared.summary', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+<!-- Cumulative Sum Energy -->
+<div class="row mb-4"> 
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="menu-icon tf-icons bx bx-lg bx-bulb text-warning"></i>
+              Total Number of Communities by Year (energy)</h5>
+        </div>
+        <div class="card-body">
+            <div id="energyCumulativeSum"></div>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- <div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5>Number of communities vs. Initial Service year (energy)</h5>
+        </div>
+        <div class="card-body">
+            <div id="initialCommunityChart"></div>
+        </div>
+    </div>
+  </div>
+</div> -->
+<div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+        
+          <h5> <i class="menu-icon tf-icons bx bx-lg bx-droplet text-info"></i>
+            Total Number of Communities by Year (water)</h5>
+        </div>
+        <div class="card-body">
+            <div id="initialYearCommunityChartWater"></div>
+        </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="menu-icon tf-icons bx bx-lg bx-wifi text-success"></i>
+              Total Number of Communities by Year (internet)</h5>
+        </div>
+        <div class="card-body">
+            <div id="initialYearCommunityChartInternet"></div>
+        </div>
+    </div> 
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="menu-icon tf-icons bx bx-lg bx-camera text-danger"></i>
+              Total Number of Communities by Date (camera)</h5>
+        </div>
+        <div class="card-body">
+            <div id="installationCommunityChartCamera"></div>
+        </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Masafer Yatta-->
+<div class="card mb-4">
+  <div class="card-header">
+    <h3 class="mb-2 pt-4 pb-1">Masafer Yatta</h3>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="row align-items-end">
+            <div class="col-6">
+                <h4 class=" text-primary mb-2 pt-4 pb-1"><?php echo e($communitiesMasafersCount); ?></h4>
+                <span class="d-block mb-4 text-nowrap">Communities</span>
+            </div>
+            <div class="col-6">
+                <i class="bx bx-home me-1 bx-lg text-primary"></i>
+            </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="row align-items-end">
+          <div class="col-6">
+            <h4 class=" text-primary mb-2 pt-4 pb-1"><?php echo e($countHouseholds); ?></h4>
+            <span class="d-block mb-4 text-nowrap">Households</span>
+          </div>
+          <div class="col-6">
+            <i class="bx bx-user me-1 bx-lg text-warning"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="row align-items-end">
+          <div class="col-6">
+            <h4 class=" text-primary mb-2 pt-4 pb-1"><?php echo e($countEnergyUsers); ?></h4>
+            <span class="d-block mb-4 text-nowrap">Energy Users</span>
+          </div>
+          <div class="col-6">
+            <i class="bx bx-user-check me-1 bx-lg text-danger"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="row align-items-end">
+          <div class="col-6">
+            <h4 class=" text-primary mb-2 pt-4 pb-1"><?php echo e($countMgSystem->count()); ?></h4>
+            <span class="d-block mb-4 text-nowrap">MG Systems</span>
+          </div>
+          <div class="col-6">
+            <i class="bx bx-grid me-1 bx-lg text-success"></i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="row align-items-end">
+          <div class="col-6">
+            <h4 class=" text-primary mb-2 pt-4 pb-1"><?php echo e($countFbsSystem->count()); ?></h4>
+            <span class="d-block mb-4 text-nowrap">FBS Systems</span>
+          </div>
+          <div class="col-6">
+            <i class="bx bx-sun me-1 bx-lg text-dark"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="row align-items-end">
+          <div class="col-6">
+            <h4 class=" text-primary mb-2 pt-4 pb-1"><?php echo e($countH2oUsers); ?></h4>
+            <span class="d-block mb-4 text-nowrap">H2O Users</span>
+          </div>
+          <div class="col-6">
+            <i class="bx bx-droplet me-1 bx-lg text-info"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="row align-items-end">
+            <div class="col-6">
+                <h4 class=" text-primary mb-2 pt-4 pb-1"><?php echo e($countInternetUsers); ?></h4>
+                <span class="d-block mb-4 text-nowrap">Internet Holders</span>
+            </div>
+            <div class="col-6">
+                <i class="bx bx-wifi me-1 bx-lg text-light"></i>
+            </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<?php echo $__env->make('employee.incident_details', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?> 
+  <div class="row mb-4">
+    <div class="col-md-12 col-lg-12">
+      <div class="col-xl-12 col-lg-12 col-md-12">
+        <div class="panel panel-primary">
+          <div class="panel-body" >
+            <div id="incidentsMgChart" style="height:400px;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="module">
+ 
+  const street = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+    maxZoom: 18
+  }),
+  watercolor = L.tileLayer('http://tile.stamen.com/watercolor/{z}/{x}/{y}.jpg', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+    maxZoom: 18
+  });
+
+  var firstMap = $("#layerControl1");
+  var clearMap = $("#clearMapControl");
+  var filteredMap = $("#layerControlFilter");
+//   var mapInstance;
+
+//   // Function to initialize the map
+//   function initializeMap() {
+    
+//     mapInstance = L.map('layerControl1', {
+//       center: [32.2428238, 35.494258],
+//       zoom: 10,
+//       layers: [street]
+//     });
+//   }
+
+//   // Function to clear the map
+//   function mapClear() {
+//     if (mapInstance) {
+//       mapInstance.remove(); // Remove the map instance from the container
+//       mapInstance = null; // Set the map instance to null
+//     }
+//   }
+
+//   // Function to parse URL parameters
+// function getParameterByName(name, url) {
+//     if (!url) url = window.location.href;
+//     name = name.replace(/[\[\]]/g, "\\$&");
+//     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+//         results = regex.exec(url);
+//     if (!results) return null;
+//     if (!results[2]) return '';
+//     return decodeURIComponent(results[2].replace(/\+/g, " "));
+// }
+
+//   // Get latitude and longitude from URL parameters
+//   var lat = getParameterByName('lat');
+//   var lng = getParameterByName('lng');
+
+//   // Check if latitude and longitude are provided
+//   if (lat && lng) {
+//     if (!mapInstance) {
+//         // Initialize the map with the provided latitude and longitude
+//         initializeMap();
+//     }
+//     mapInstance.setView([parseFloat(lat), parseFloat(lng)], 10);
+//   } else {
+//     if (!mapInstance) {
+//         // Initialize the map with default settings
+//         initializeMap();
+//     }
+//   }
+
+  DefaultMapView();
+
+  function DefaultMapView() {
+    // view default map
+    if (firstMap) {
+
+      filteredMap.css("visibility", "hidden");
+      filteredMap.css('display','none');
+
+      clearMap.css("visibility", "hidden");
+      clearMap.css('display','none');
+
+      const communities = <?php echo json_encode($communities); ?>;
+      const cities = L.layerGroup();
+
+      communities.forEach(community => {
+
+        const { id, latitude, longitude, english_name } = community;
+        const marker = L.marker([latitude, longitude]).bindPopup(english_name);
+       
+        marker.on('click', function() {
+
+          setTimeout(function() {
+
+            var url = window.location.href; 
+            var newUrl = url.replace('/home', '');
+            url = newUrl + '/community/' + id;
+            window.open(url, '_blank');
+          }, 2000);
+        });
+
+        cities.addLayer(marker);
+      });
+
+      const layerControl1 = L.map('layerControl1', {
+        center: [32.2428238, 35.494258],
+        zoom: 10,
+        layers: [street, cities]
+      });
+      const baseMaps = {
+        Street: street,
+        Watercolor: watercolor
+      };
+      const overlayMaps = {
+        Cities: cities
+      };
+      
+
+      MapCommunity(layerControl1, baseMaps, overlayMaps);
+    }
+  }
+
+  function ClearMapView() {
+    
+    if (clearMap) {
+        // Hide other map elements and show the clearMap
+        filteredMap.css("visibility", "hidden");
+        filteredMap.css('display', 'none');
+        firstMap.css("visibility", "hidden");
+        firstMap.css('display', 'none');
+        clearMap.css("visibility", "visible");
+        clearMap.css('display', 'block');
+
+        // Get the clearMap container element
+        const clearMapContainer = document.getElementById('clearMapControl');
+
+        // Remove all child nodes (this effectively clears the existing map)
+        while (clearMapContainer.firstChild) {
+            clearMapContainer.removeChild(clearMapContainer.firstChild);
+        }
+
+        // Create a new map instance in the cleared container
+        const communities = <?php echo json_encode($communities); ?>;
+        const cities = L.layerGroup();
+
+        communities.forEach(community => {
+          
+          const { id, latitude, longitude, english_name } = community;
+          const markerClear = L.marker([latitude, longitude]).bindPopup(english_name);
+
+          markerClear.on('click', function() {
+
+            setTimeout(function() {
+
+              var url = window.location.href; 
+              var newUrl = url.replace('/home', '');
+              url = newUrl + '/community/' + id;
+              window.open(url, '_blank');
+            }, 2000);
+          });
+
+          cities.addLayer(markerClear);
+        });
+
+        const clearMapControl = L.map('clearMapControl', {
+            center: [32.2428238, 35.494258],
+            zoom: 10,
+            layers: [street, cities]
+        });
+
+        const baseMaps = {
+            Street: street,
+            Watercolor: watercolor
+        };
+        const overlayMaps = {
+            Cities: cities
+        };
+
+        MapCommunity(clearMapControl, baseMaps, overlayMaps);
+    }
+  }
+
+
+  $('#clearFiltersButton').on('click', function() {
+
+    $('.selectpicker').prop('selectedIndex', 0);
+    $('.selectpicker').selectpicker('refresh');
+    ClearMapView();
+  });
+
+  $('#exportSVGButton').on('click', function() {
+
+    const mapContainer = document.getElementById('layerControl1');
+
+    // Create an SVG element
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+    // Get Leaflet map content and render it to the SVG
+    const serializer = new XMLSerializer();
+    const mapContent = serializer.serializeToString(mapContainer);
+
+    canvg(svg, mapContent, {
+        ignoreMouse: true,
+        ignoreAnimation: true,
+        renderCallback: function () {
+            // Convert SVG to Blob and create a download link
+            const svgBlob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(svgBlob);
+            link.download = 'map.svg';
+            link.click();
+        }
+    });
+  });
+
+  $('#communityFilterMapButton').on('click', function() {
+    event.preventDefault();
+
+    var formData = $("#communityFilterMapForm").serialize();
+
+    console.log(formData);
+
+    $.ajax({
+      url: '/filter_map', 
+      type: 'GET',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (data) {
+
+        if(filteredMap) {
+
+          firstMap.css("visibility", "hidden");
+          firstMap.css('display', 'none');
+
+          clearMap.css("visibility", "hidden");
+          clearMap.css('display', 'none');
+
+          filteredMap.css("visibility", "visible");
+          filteredMap.css('display', 'block');
+
+          var cities = L.layerGroup();
+          data.communities.forEach(community => {
+
+            var {id, latitude, longitude, english_name } = community;
+            var markerFiltered = L.marker([latitude, longitude]).bindPopup(english_name);
+
+            markerFiltered.on('click', function() {
+
+              setTimeout(function() {
+
+                var url = window.location.href; 
+                var newUrl = url.replace('/home', '');
+                url = newUrl + '/community/' + id;
+                window.open(url, '_blank');
+              }, 2000);
+            });
+
+            cities.addLayer(markerFiltered);
+          });
+
+          const layerControlFiltered = L.map('layerControlFilter', {
+            center: [32.2428238, 35.494258],
+            zoom: 10,
+            layers: [street, cities]
+          });
+          const baseMapsFiltered = {
+            Street: street,
+            Watercolor: watercolor
+          };
+          const overlayMapsFiltered = {
+            Cities: cities
+          };
+
+          MapCommunityFiltered(layerControlFiltered, baseMapsFiltered, overlayMapsFiltered) 
+        }
+      },
+      error: function (xhr, status, error) {
+          // Handle error
+          console.error(error);
+      }
+    });
+  });
+
+  function MapCommunity(layerControl1, baseMaps, overlayMaps) {
+
+    L.control.layers(baseMaps, overlayMaps).addTo(layerControl1);
+    L.tileLayer('https://c.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+      maxZoom: 18
+    }).addTo(layerControl1);
+  }
+
+  function MapCommunityFiltered(layerControlFiltered, baseMapsFiltered, overlayMapsFiltered) {
+
+    L.control.layers(baseMapsFiltered, overlayMapsFiltered).addTo(layerControlFiltered);
+    L.tileLayer('https://c.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+      maxZoom: 18
+    }).addTo(layerControlFiltered);
+  }
+
+</script>
+
+<script type="text/javascript">
+
+  $(function () {
+   
+    var water = <?php echo $cumulativeSumWaterData; ?>;
+    var internet = <?php echo $cumulativeSumInternetData; ?>;
+    var cumulativeSum = <?php echo $cumulativeSum; ?>;
+    var camera = <?php echo $cumulativeSumCameraData; ?>;
+
+    google.charts.load('current', {'packages':['bar']});
+    google.charts.setOnLoadCallback(drawChart);
+    
+    function drawChart() {
+  
+      var waterData = google.visualization.arrayToDataTable(water);
+      var internetData = google.visualization.arrayToDataTable(internet);
+      var cameraData = google.visualization.arrayToDataTable(camera);
+      var cumulativeSumEnergyData = google.visualization.arrayToDataTable(cumulativeSum);
+
+      var chartWater = new google.charts.Bar
+        (document.getElementById('initialYearCommunityChartWater'));
+      chartWater.draw(
+        waterData
+      );
+
+      var chartInternet = new google.charts.Bar
+        (document.getElementById('initialYearCommunityChartInternet'));
+      chartInternet.draw(
+        internetData
+      );
+
+      var chartCamera = new google.charts.Bar
+        (document.getElementById('installationCommunityChartCamera'));
+        chartCamera.draw(
+          cameraData
+      );
+    }
+  });
+</script>
+
+<script type="text/javascript">
+  $(function () {
+    var cumulativeSum = <?php echo $cumulativeSum; ?>;
+
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+      
+    var options = { 
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        vAxis: {format: '0000'},
+        hAxis: {format: '0000'}
+      };
+
+    function drawChart() {
+        var cumulativeSumEnergyData = google.visualization.arrayToDataTable(cumulativeSum);
+
+        var chartCumulativeSumEnergy = new google.visualization.LineChart
+          (document.getElementById('energyCumulativeSum'));
+          chartCumulativeSumEnergy.draw(
+          cumulativeSumEnergyData, options
+        );
+    }
+  });
+</script>
+
+<script type="text/javascript">
+
+  $(function () {
+
+    var analytics = <?php echo $incidentsData; ?>;
+    var numberMg = <?php echo $mgIncidentsNumber;?>;
+
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      var data = google.visualization.arrayToDataTable(analytics);
+      var options  ={
+        title:'Status of Micro-Grids Under Threat of Demolition (total '+ numberMg +')',
+        is3D:true,
+      };
+
+      var chart = new google.visualization.PieChart(
+        document.getElementById('incidentsMgChart'));
+      chart.draw(
+        data, options
+      );
+
+      google.visualization.events.addListener(chart,'select',function() {
+        var row = chart.getSelection()[0].row;
+        var selected_data=data.getValue(row,0);
+        
+        $.ajax({
+          url: "<?php echo e(route('incidentDetails')); ?>",
+          type: 'get',
+          data: {
+            selected_data: selected_data
+          },
+          success: function(response) {
+            $('#incidentsDetailsModal').modal('toggle');
+            $('#incidentsDetailsTitle').html(selected_data);
+            $('#contentIncidentsTable').find('tbody').html('');
+              response.forEach(refill_table);
+              function refill_table(item, index){
+                $('#contentIncidentsTable').find('tbody').append('<tr><td>'+item.community+'</td><td>'+item.energy+'</td><td>'+item.incident+'</td><td>'+item.date+'</td></tr>');
+              }
+          }
+        });
+      });
+    }
+    
+  });
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts/layoutMaster', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\user\Desktop\public_html\comet-me\resources\views/employee/dashboard.blade.php ENDPATH**/ ?>
