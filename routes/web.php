@@ -296,6 +296,12 @@ Route::post('/delete-internet-system-electrician', [App\Http\Controllers\Interne
 
 Route::resource('internet-component', App\Http\Controllers\InternetComponentController::class);
 
+// Internet returns (removed systems)
+Route::get('internet/returns/create', [App\Http\Controllers\InternetReturnController::class, 'create'])->name('internet.returns.create');
+Route::post('internet/returns', [App\Http\Controllers\InternetReturnController::class, 'store'])->name('internet.returns.store');
+Route::get('/api/components', [App\Http\Controllers\InternetReturnController::class, 'components']);
+Route::get('/api/internet-systems', [App\Http\Controllers\InternetReturnController::class, 'systems']);
+
 Route::get('/', [App\Http\Controllers\HomeController::class, 'showMainPage']);
 Route::get('downloadPdf', [App\Http\Controllers\HomeController::class, 'downloadPdf']);
 

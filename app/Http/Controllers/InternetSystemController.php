@@ -18,6 +18,7 @@ use App\Models\InternetUserDonor;
 use App\Models\InternetSystemType;
 use App\Models\InternetSystem;
 use App\Models\InternetSystemCommunity;
+use App\Models\InternetSystemReturn;
 use App\Models\Household;
 use App\Models\Region;
 use App\Models\Router;
@@ -127,7 +128,18 @@ class InternetSystemController extends Controller
                     ->make(true);
             }
 
-            return view('system.internet.index');
+            // Summary counts for the index view
+            $totalInstalled = InternetSystem::count();
+            $totalHolders = InternetUser::where('active', 1)->count();
+            $totalReturned = InternetSystemReturn::where('is_archived', 0)->count();
+
+            // Components stats are deferred until a dedicated components table exists
+            $componentsLost = 0;
+            $componentsReused = 0;
+
+            return view('system.internet.index', compact(
+                'totalInstalled', 'totalHolders', 'totalReturned', 'componentsLost', 'componentsReused'
+            ));
         } else {
 
             return view('errors.not-found');
