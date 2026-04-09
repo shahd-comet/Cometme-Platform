@@ -1,8 +1,8 @@
-@extends('layouts/layoutMaster')
 
-@section('title', 'edit vending point')
 
-@include('layouts.all')
+<?php $__env->startSection('title', 'edit vending point'); ?>
+
+<?php echo $__env->make('layouts.all', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 <style>
 
@@ -37,11 +37,11 @@
     }
 </style>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> 
-        {{$vendingPoint->english_name}} - 
+        <?php echo e($vendingPoint->english_name); ?> - 
     <span class="text-muted fw-light">Information </span> 
 </h4>
 
@@ -49,17 +49,17 @@
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" action="{{route('vending-point.update', $vendingPoint->id)}}"
+            <form method="POST" action="<?php echo e(route('vending-point.update', $vendingPoint->id)); ?>"
                 enctype="multipart/form-data" >
-                @csrf
-                @method('PATCH')
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('PATCH'); ?>
 
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>English Name</label>
                             <input type="text" name="english_name" 
-                            class="form-control" value="{{$vendingPoint->english_name}}">
+                            class="form-control" value="<?php echo e($vendingPoint->english_name); ?>">
                         </fieldset>
                     </div>
 
@@ -67,14 +67,14 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Arabic Name</label>
                             <input type="text" name="arabic_name" 
-                            class="form-control" value="{{$vendingPoint->arabic_name}}">
+                            class="form-control" value="<?php echo e($vendingPoint->arabic_name); ?>">
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Phone Number</label>
                             <input type="text" name="phone_number" class="form-control" 
-                                value="{{$vendingPoint->phone_number}}">
+                                value="<?php echo e($vendingPoint->phone_number); ?>">
                         </fieldset>
                     </div>
                 </div>
@@ -84,7 +84,7 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Additional Phone Number</label>
                             <input type="text" name="additional_phone_number" class="form-control"
-                                value="{{$vendingPoint->additional_phone_number}}">
+                                value="<?php echo e($vendingPoint->additional_phone_number); ?>">
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -92,12 +92,12 @@
                             <label class='col-md-12 control-label'>Community/Town</label>
                             <select name="community_town" id="communityTownPlace" 
                                 class="selectpicker form-control" required>
-                                @if($vendingPoint->community_id)
+                                <?php if($vendingPoint->community_id): ?>
                                     <option disabled selected>Community</option>
-                                @else @if($vendingPoint->town_id)
+                                <?php else: ?> <?php if($vendingPoint->town_id): ?>
                                     <option disabled selected>Town</option>
-                                @endif
-                                @endif
+                                <?php endif; ?>
+                                <?php endif; ?>
                                     
                                 <option value="community">Community</option> 
                                 <option value="town">Town</option>
@@ -113,18 +113,18 @@
                             <select name="community_town_id" id="communityTownVendingPoint" 
                                 class="selectpicker form-control" 
                                 data-live-search="true">
-                                @if($vendingPoint->community_id)
-                                    <option disabled selected>{{$vendingPoint->Community->english_name}}</option>
-                                    @foreach($communities as $community)
-                                        <option value="{{$community->id}}">{{$community->english_name}}</option>
-                                    @endforeach
-                                @else @if($vendingPoint->town_id)
-                                    <option disabled selected>{{$vendingPoint->Town->english_name}}</option>
-                                    @foreach($towns as $town)
-                                        <option value="{{$town->id}}">{{$town->english_name}}</option>
-                                    @endforeach
-                                @endif
-                                @endif
+                                <?php if($vendingPoint->community_id): ?>
+                                    <option disabled selected><?php echo e($vendingPoint->Community->english_name); ?></option>
+                                    <?php $__currentLoopData = $communities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $community): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($community->id); ?>"><?php echo e($community->english_name); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php else: ?> <?php if($vendingPoint->town_id): ?>
+                                    <option disabled selected><?php echo e($vendingPoint->Town->english_name); ?></option>
+                                    <?php $__currentLoopData = $towns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $town): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($town->id); ?>"><?php echo e($town->english_name); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
+                                <?php endif; ?>
                             </select>
                         </fieldset>
                         <div id="community_town_id_error" style="color: red;"></div>
@@ -138,17 +138,17 @@
                             <select name="vendor_region_id" id="vendorRegion" 
                                 class="selectpicker form-control" 
                                 data-live-search="true">
-                                @if($vendingPoint->vendor_region_id)
-                                <option disabled selected>{{$vendingPoint->VendorRegion->english_name}}</option>
-                                @foreach($vendorRegions as $vendorRegion)
-                                <option value="{{$vendorRegion->id}}">{{$vendorRegion->english_name}}</option>
-                                @endforeach
-                                @else
+                                <?php if($vendingPoint->vendor_region_id): ?>
+                                <option disabled selected><?php echo e($vendingPoint->VendorRegion->english_name); ?></option>
+                                <?php $__currentLoopData = $vendorRegions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendorRegion): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($vendorRegion->id); ?>"><?php echo e($vendorRegion->english_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php else: ?>
                                 <option disabled selected>Choose one...</option>
-                                @foreach($vendorRegions as $vendorRegion)
-                                <option value="{{$vendorRegion->id}}">{{$vendorRegion->english_name}}</option>
-                                @endforeach
-                                @endif
+                                <?php $__currentLoopData = $vendorRegions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendorRegion): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($vendorRegion->id); ?>"><?php echo e($vendorRegion->english_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </select>
                         </fieldset>
                         <div id="vendor_region_id_error" style="color: red;"></div>
@@ -161,7 +161,8 @@
                             <label class='col-md-12 control-label'>Notes</label>
                             <textarea name="notes" class="form-control" 
                                 style="resize:none" cols="20" rows="3">
-                                {{$vendingPoint->notes}}
+                                <?php echo e($vendingPoint->notes); ?>
+
                             </textarea>
                         </fieldset>
                     </div>
@@ -181,7 +182,7 @@
     </div>
 </div>
 
-@include('vendor.create-vendor-username')
+<?php echo $__env->make('vendor.create-vendor-username', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 <script>
 
     // This function is for showing the place (town or community)
@@ -256,7 +257,7 @@
         }).then((result) => {
             if(result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('deleteServedCommunity') }}",
+                    url: "<?php echo e(route('deleteServedCommunity')); ?>",
                     type: 'get',
                     data: {id: id},
                     success: function(response) {
@@ -295,9 +296,9 @@
                 <div style="flex:1; margin-right:10px;">
                     <select name="vendor_user_name_id[${serviceId}][]" class="selectpicker form-control" data-live-search="true">
                         <option disabled selected>Select vendor username</option>
-                        @foreach($vendorUsers as $vendorUser)
-                            <option value="{{ $vendorUser->id }}">{{ $vendorUser->name }}</option>
-                        @endforeach
+                        <?php $__currentLoopData = $vendorUsers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendorUser): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($vendorUser->id); ?>"><?php echo e($vendorUser->name); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
                 <button type="button" class="btn btn-danger btn-sm remove-vendor-user">Delete New Username</button>
@@ -307,9 +308,9 @@
                 <div class="d-flex gap-2 mb-2">
                     <select class="selectpicker form-control community-select" multiple data-service-id="${serviceId}" data-user-id="${tempUserId}">
                         <option disabled selected>Select community</option>
-                        @foreach($communities as $community)
-                            <option value="{{ $community->id }}">{{ $community->english_name }}</option>
-                        @endforeach
+                        <?php $__currentLoopData = $communities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $community): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($community->id); ?>"><?php echo e($community->english_name); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
                 <div class="selected-communities"></div>
@@ -353,4 +354,5 @@
 
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts/layoutMaster', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\CometProject\Cometme-Platform\resources\views/vendor/edit.blade.php ENDPATH**/ ?>

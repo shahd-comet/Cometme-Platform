@@ -962,3 +962,9 @@ Route::get('api/community/{communityId}/households', [App\Http\Controllers\Meter
 // Add status update route
 Route::post('meter-history/add-update', [App\Http\Controllers\MeterHistoryAllController::class, 'store'])->name('meter-history.add-update');
 
+// new routes
+Route::resource('vending-history', App\Http\Controllers\VendingHistoryController::class);
+Route::get('/vending-counts', [App\Http\Controllers\VendingHistoryController::class, 'getCounts'])->name('vending.counts');
+Route::post('vending-history-import', [App\Http\Controllers\VendingHistoryController::class, 'import'])->name('vending-history.import');
+Route::get('/delete-vending-history', [App\Http\Controllers\VendingHistoryController::class, 'deleteVendingHistory'])->name('deleteVendingHistory');
+Route::get('vending-history/get_by_vendor/{vendor_id}', [App\Http\Controllers\VendingHistoryController::class, 'getServiceByVendor']);

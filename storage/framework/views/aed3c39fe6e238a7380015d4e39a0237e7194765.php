@@ -1,14 +1,14 @@
-@php
+<?php
   $pricingModal = true;
-@endphp
+?>
 
-@extends('layouts/layoutMaster')
 
-@section('title', 'Vending Point')
 
-@include('layouts.all')
+<?php $__env->startSection('title', 'Vending Point'); ?>
 
-@section('content')
+<?php echo $__env->make('layouts.all', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+<?php $__env->startSection('content'); ?>
  
 <p>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
@@ -50,8 +50,8 @@
                         </div> 
                     </div>
                     <form method="POST" enctype='multipart/form-data' id="exportFromEnergyHolder"
-                        action="{{ route('energy-meter.export') }}">
-                        @csrf
+                        action="<?php echo e(route('energy-meter.export')); ?>">
+                        <?php echo csrf_field(); ?>
                         <div class="card-body"> 
                             <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
@@ -70,11 +70,12 @@
                                         <select name="community_id"
                                             class="selectpicker form-control" data-live-search="true">
                                             <option disabled selected>Search Community</option>
-                                            @foreach($communities as $community)
-                                                <option value="{{$community->id}}">
-                                                    {{$community->english_name}}
+                                            <?php $__currentLoopData = $communities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $community): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($community->id); ?>">
+                                                    <?php echo e($community->english_name); ?>
+
                                                 </option>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select> 
                                     </fieldset>
                                 </div>
@@ -115,13 +116,14 @@
     <span class="text-muted fw-light">Vending </span> Points and History
 </h4>
 
-@if(session()->has('message'))
+<?php if(session()->has('message')): ?>
     <div class="row">
         <div class="alert alert-success">
-            {{ session()->get('message') }}
+            <?php echo e(session()->get('message')); ?>
+
         </div>
     </div>
-@endif
+<?php endif; ?>
 
 
 <div class="container">
@@ -134,11 +136,12 @@
                         <select name="vendor_region" class="selectpicker form-control"
                             data-live-search="true" id="filterByRegion">
                             <option disabled selected>Search Region</option>
-                            @foreach($vendorRegions as $vendorRegion)
-                                <option value="{{$vendorRegion->id}}">
-                                    {{$vendorRegion->english_name}}
+                            <?php $__currentLoopData = $vendorRegions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendorRegion): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($vendorRegion->id); ?>">
+                                    <?php echo e($vendorRegion->english_name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select> 
                     </fieldset>
                 </div>
@@ -148,11 +151,12 @@
                         <select name="vendor_community" class="selectpicker form-control"
                             data-live-search="true" id="filterByCommunity">
                             <option disabled selected>Search Community</option>
-                            @foreach($communities as $community)
-                                <option value="{{$community->id}}">
-                                    {{$community->english_name}}
+                            <?php $__currentLoopData = $communities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $community): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($community->id); ?>">
+                                    <?php echo e($community->english_name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select> 
                     </fieldset>
                 </div>
@@ -162,11 +166,12 @@
                         <select name="vendor_town" class="selectpicker form-control"
                             data-live-search="true" id="filterBytown">
                             <option disabled selected>Search Town</option>
-                            @foreach($towns as $town)
-                                <option value="{{$town->id}}">
-                                    {{$town->english_name}}
+                            <?php $__currentLoopData = $towns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $town): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($town->id); ?>">
+                                    <?php echo e($town->english_name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select> 
                     </fieldset>
                 </div>
@@ -176,11 +181,12 @@
                         <select name="service" class="selectpicker form-control"
                             data-live-search="true" id="filterByService">
                             <option disabled selected>Search Service</option>
-                            @foreach($services as $service)
-                                <option value="{{$service->id}}">
-                                    {{$service->service_name}}
+                            <?php $__currentLoopData = $services; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $service): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($service->id); ?>">
+                                    <?php echo e($service->service_name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select> 
                     </fieldset>
                 </div>
@@ -193,11 +199,12 @@
                         <select name="service" class="selectpicker form-control"
                             data-live-search="true" id="filterByVendor">
                             <option disabled selected>Search Vendor</option>
-                            @foreach($vendors as $vendor)
-                                <option value="{{$vendor->id}}">
-                                    {{$vendor->english_name}}
+                            <?php $__currentLoopData = $vendors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($vendor->id); ?>">
+                                    <?php echo e($vendor->english_name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select> 
                     </fieldset>
                 </div> -->
@@ -240,30 +247,37 @@
                 <!-- Vending History Tab -->
                 <div class="tab-pane fade show active" id="vending-history" role="tabpanel"
                     aria-labelledby="vendingHistory-tab">
-                    @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                    <?php if(Auth::guard('user')->user()->user_type_id == 1 ||
                         Auth::guard('user')->user()->user_type_id == 2 ||
                         Auth::guard('user')->user()->user_type_id == 3 ||
-                        Auth::guard('user')->user()->user_type_id == 4 )
+                        Auth::guard('user')->user()->user_type_id == 4 ): ?>
                         <div class="row">
                             <div class="col-xl-4 col-lg-4 col-md-4">
                                 <button type="button" class="btn btn-success" 
                                     data-bs-toggle="modal" data-bs-target="#createNewVendingHistory">
                                     Create New Vending History		
                                 </button>
-                                @include('vendor.history.create')
+                                <?php echo $__env->make('vendor.history.create', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                             </div>
 
                            <div class="col-xl-6 col-lg-6 col-md-6">
-                                <form action="{{ route('vending-history.import') }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
+                                <form action="<?php echo e(route('vending-history.import')); ?>" method="POST" enctype="multipart/form-data">
+                                    <?php echo csrf_field(); ?>
 
                                     <div class="row align-items-center">
                                         <!-- File Input -->
                                         <div class="col-8">
                                             <input type="file" name="excel_file" class="form-control" id="excel_file" required>
-                                            @error('excel_file')
-                                                <div class="text-danger mt-2">{{ $message }}</div>
-                                            @enderror
+                                            <?php $__errorArgs = ['excel_file'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                                <div class="text-danger mt-2"><?php echo e($message); ?></div>
+                                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                         </div> 
 
                                         <!-- Button -->
@@ -277,7 +291,7 @@
                                 </form>
                             </div>
                         </div>
-                    @endif
+                    <?php endif; ?>
                     <table id="vendingHistoryTable" class="table table-striped data-table-vending-history my-2">
                         <thead>
                             <tr>
@@ -297,17 +311,17 @@
 
                 <!-- All Vendors Tab -->
                 <div class="tab-pane fade" id="all-vendors" role="tabpanel" aria-labelledby="vendors-tab">
-                    @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                    <?php if(Auth::guard('user')->user()->user_type_id == 1 ||
                         Auth::guard('user')->user()->user_type_id == 2 ||
                         Auth::guard('user')->user()->user_type_id == 3 ||
-                        Auth::guard('user')->user()->user_type_id == 4 )
+                        Auth::guard('user')->user()->user_type_id == 4 ): ?>
                         <div>
                             <a type="button" class="btn btn-success" target="_blank"
-                                href="{{url('vending-point', 'create')}}" >
+                                href="<?php echo e(url('vending-point', 'create')); ?>" >
                                 Create New Vending Point	
                             </a>
                         </div>
-                    @endif
+                    <?php endif; ?>
                     <table id="vendingPointTable" class="table table-striped data-table-vending-point my-2">
                         <thead>
                             <tr>
@@ -329,8 +343,8 @@
     </div>
 </div>
 
-@include('vendor.show')
-@include('vendor.history.show')
+<?php echo $__env->make('vendor.show', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+<?php echo $__env->make('vendor.history.show', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 <script>
  
@@ -364,7 +378,7 @@
     function updateCountValue() {
 
         $.ajax({
-            url: "{{ route('vending.counts') }}",
+            url: "<?php echo e(route('vending.counts')); ?>",
             type: "GET",
             success: function(response) {
 
@@ -393,7 +407,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('vending-history.index') }}",
+                    url: "<?php echo e(route('vending-history.index')); ?>",
                     data: function (d) {
                         d.region_filter = $('#filterByRegion').val();
                         d.community_filter = $('#filterByCommunity').val();
@@ -421,7 +435,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('vending-point.index') }}",
+                    url: "<?php echo e(route('vending-point.index')); ?>",
                     data: function (d) {
                         d.region_filter = $('#filterByRegion').val();
                         d.community_filter = $('#filterByCommunity').val();
@@ -523,7 +537,7 @@
 
                 if(result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('deleteVendor') }}",
+                        url: "<?php echo e(route('deleteVendor')); ?>",
                         type: 'get',
                         data: {id: id},
                         success: function(response) {
@@ -650,7 +664,7 @@
 
                 if(result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('deleteVendingHistory') }}",
+                        url: "<?php echo e(route('deleteVendingHistory')); ?>",
                         type: 'get',
                         data: {id: id},
                         success: function(response) {
@@ -739,4 +753,5 @@
         });
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts/layoutMaster', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\CometProject\Cometme-Platform\resources\views/vendor/index.blade.php ENDPATH**/ ?>

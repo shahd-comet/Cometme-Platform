@@ -7,41 +7,41 @@
 <ul class="menu-inner py-1" id="menu">
 
     <li class="menu-item" id="home" data-route="home">
-        <a href="{{url('home')}}" class="dashboard menu-link" >
+        <a href="<?php echo e(url('home')); ?>" class="dashboard menu-link" >
             <i class="menu-icon tf-icons bx bx-tachometer"></i>
             <div>Dashboards</div>
         </a>
     </li>
 
-    @if(Auth::guard('user')->user()->user_type_id == 1 ||
-        Auth::guard('user')->user()->user_type_id == 2)
+    <?php if(Auth::guard('user')->user()->user_type_id == 1 ||
+        Auth::guard('user')->user()->user_type_id == 2): ?>
         <li class="menu-item" id="work-plans" data-route="work-plans">
-            <a href="{{url('work-plan')}}" class="menu-link">
+            <a href="<?php echo e(url('work-plan')); ?>" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-list-check"></i>
                 <div>Action Items</div>
             </a>
         </li>
-    @endif
+    <?php endif; ?>
     
-    @if(Auth::guard('user')->user()->user_type_id == 1 ||
-        Auth::guard('user')->user()->user_type_id == 2)
+    <?php if(Auth::guard('user')->user()->user_type_id == 1 ||
+        Auth::guard('user')->user()->user_type_id == 2): ?>
         <li class="menu-item" id="data-collection" data-route="data-collection">
-            <a href="{{url('data-collection')}}" class="menu-link">
+            <a href="<?php echo e(url('data-collection')); ?>" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-data"></i>
                 <div>Data Collection</div>
             </a>
         </li>
-    @endif
+    <?php endif; ?>
 
     <li class="menu-item" id="action-items" data-route="action-items">
-        <a href="{{url('action-item')}}" class="menu-link">
+        <a href="<?php echo e(url('action-item')); ?>" class="menu-link">
             <i class="menu-icon tf-icons bx bx-task"></i>
             <div>Project Plans</div>
         </a>
     </li>
 
     <li class="menu-item" id="all-active" data-route="all-active">
-        <a href="{{url('all-active')}}" class="menu-link">
+        <a href="<?php echo e(url('all-active')); ?>" class="menu-link">
             <i class="menu-icon tf-icons bx bx-show"></i>
             <div>Overview of Active Users</div>
         </a>
@@ -54,13 +54,13 @@
         </a>
         <ul class="menu-sub">
             <li class="menu-item" id="all-community" data-route="community">
-                <a href="{{url('community')}}" class="menu-link" >
+                <a href="<?php echo e(url('community')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>All</div>
                 </a>
             </li>
             <li class="menu-item" id="served-community" data-route="served-community">
-                <a href="{{url('served-community')}}" class="menu-link" >
+                <a href="<?php echo e(url('served-community')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Served</div>
                 </a>
@@ -71,13 +71,13 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="initial-community" data-route="initial-community">
-                        <a href="{{url('initial-community')}}" class="menu-link" >
+                        <a href="<?php echo e(url('initial-community')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Initial Survey</div>
                         </a>
                     </li>
                     <li class="menu-item" id="ac-community" data-route="ac-community">
-                        <a href="{{url('ac-community')}}" class="menu-link" >
+                        <a href="<?php echo e(url('ac-community')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>AC in Progress</div>
                         </a>
@@ -85,19 +85,19 @@
                 </ul>
             </li>
             <li class="menu-item" id="representative" data-route="representative">
-                <a href="{{url('representative')}}" class="menu-link" >
+                <a href="<?php echo e(url('representative')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Community Representatives</div>
                 </a>
             </li>
             <li class="menu-item" id="sub-community-household" data-route="sub-community-household">
-                <a href="{{url('sub-community-household')}}" class="menu-link" >
+                <a href="<?php echo e(url('sub-community-household')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Sub Communities</div>
                 </a>
             </li>
             <li class="menu-item" id="community-compound" data-route="compound">
-                <a href="{{url('compound')}}" class="menu-link" >
+                <a href="<?php echo e(url('compound')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Community Compounds</div>
                 </a>
@@ -111,37 +111,37 @@
         </a>
         <ul class="menu-sub">
             <li class="menu-item" id="household" data-route="household">
-                <a href="{{url('household')}}" class="menu-link" >
+                <a href="<?php echo e(url('household')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>All</div>
                 </a>
             </li>
-            <!-- @if(Auth::guard('user')->user()->user_type_id == 1 || 
+            <!-- <?php if(Auth::guard('user')->user()->user_type_id == 1 || 
                 Auth::guard('user')->user()->user_type_id == 2 || 
                 Auth::guard('user')->user()->user_type_id == 3 || 
-                Auth::guard('user')->user()->user_type_id == 4)
+                Auth::guard('user')->user()->user_type_id == 4): ?>
                 <li class="menu-item" id="requested-household">
-                    <a href="{{url('requested-household')}}" class="menu-link" >
+                    <a href="<?php echo e(url('requested-household')); ?>" class="menu-link" >
                         <i class=""></i>
                         <div>Requested System/Meter</div>
                     </a>
                 </li>
-            @endif -->
+            <?php endif; ?> -->
             <li class="menu-item" id="in_progress_households" data-route="in-progress-households">
-                <a href="{{ url('in-progress-households') }}" class="menu-link">
+                <a href="<?php echo e(url('in-progress-households')); ?>" class="menu-link">
                     <i class=""></i>
                     <div>In Progress</div>
                 </a>
                 
             </li>
             <li class="menu-item" id="served-household" data-route="served-household">
-                <a href="{{url('served-household')}}" class="menu-link" >
+                <a href="<?php echo e(url('served-household')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Served</div>
                 </a>
             </li>
             <li class="menu-item" id="displaced-household" data-route="displaced-household">
-                <a href="{{url('displaced-household')}}" class="menu-link" >
+                <a href="<?php echo e(url('displaced-household')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Displaced</div>
                 </a>
@@ -150,14 +150,14 @@
     </li>
    
     <li class="menu-item" id="public-structure" data-route="public-structure">
-        <a href="{{url('public-structure')}}" class="dashboard menu-link">
+        <a href="<?php echo e(url('public-structure')); ?>" class="dashboard menu-link">
             <i class="menu-icon tf-icons bx bx-buildings"></i>
             <div>Public Structures</div>
         </a>
     </li>
 
     <li class="menu-item" id="other-holder" data-route="other-holder">
-        <a href="{{url('other-holder')}}" class="dashboard menu-link">
+        <a href="<?php echo e(url('other-holder')); ?>" class="dashboard menu-link">
             <i class="menu-icon tf-icons bx bx-group"></i>
             <div>Other Holders</div>
         </a>
@@ -170,7 +170,7 @@
         </a>
         <ul class="menu-sub">
             <li class="menu-item" id="camera-request" data-route="camera-request">
-                <a href="{{url('camera-request')}}" class="menu-link" >
+                <a href="<?php echo e(url('camera-request')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Requested Camera</div>
                 </a>
@@ -190,7 +190,7 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="all-meter" data-route="all-meter">
-                        <a href="{{url('all-meter')}}" class="menu-link" >
+                        <a href="<?php echo e(url('all-meter')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Energy Holders</div>
                         </a>
@@ -204,25 +204,25 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="all-water" data-route="all-water">
-                        <a href="{{url('all-water')}}" class="menu-link" >
+                        <a href="<?php echo e(url('all-water')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Holders</div>
                         </a>
                     </li>
                     <li class="menu-item" id="shared-h2o" data-route="shared-h2o">
-                        <a href="{{url('shared-h2o')}}" class="menu-link" >
+                        <a href="<?php echo e(url('shared-h2o')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Shared H2O Users</div>
                         </a>
                     </li>
                     <li class="menu-item" id="water-public" data-route="water-public">
-                        <a href="{{url('water-public')}}" class="menu-link" >
+                        <a href="<?php echo e(url('water-public')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Shared H2O Public Structures</div>
                         </a>
                     </li>
                     <li class="menu-item" id="shared-grid" data-route="shared-grid">
-                        <a href="{{url('shared-grid')}}" class="menu-link" >
+                        <a href="<?php echo e(url('shared-grid')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Shared Grid Holders</div>
                         </a>
@@ -237,7 +237,7 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="internet-user" data-route="internet-user">
-                        <a href="{{url('internet-user')}}" class="menu-link" >
+                        <a href="<?php echo e(url('internet-user')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Contract Holders</div>
                         </a>
@@ -251,7 +251,7 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="agriculture-user" data-route="argiculture-user">
-                        <a href="{{url('argiculture-user')}}" class="menu-link">
+                        <a href="<?php echo e(url('argiculture-user')); ?>" class="menu-link">
                             <i class=""></i>
                             <div>Agriculture Users</div>
                         </a>
@@ -266,26 +266,26 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" data-route="all-cameras">
-                        <a href="{{ url('all-cameras') }}" class="menu-link">
+                        <a href="<?php echo e(url('all-cameras')); ?>" class="menu-link">
                             <i class=""></i>
                             <div>All Cameras</div>
                         </a>
                     </li>
                 </ul>
-                @if(
+                <?php if(
                         Auth::guard('user')->user()->user_type_id == 1 ||
                         Auth::guard('user')->user()->user_type_id == 6 ||
                         Auth::guard('user')->user()->user_type_id == 10
-                    )
+                    ): ?>
                     <ul class="menu-sub">
                         <li class="menu-item" data-route="camera-component">
-                            <a href="{{url('camera-component')}}" class="menu-link">
+                            <a href="<?php echo e(url('camera-component')); ?>" class="menu-link">
                                 <i class=""></i>
                                 <div>Camera Components</div>
                             </a>
                         </li>
                     </ul>
-                @endif
+                <?php endif; ?>
             </li>
         </ul>
     </li>
@@ -297,7 +297,7 @@
         </a>
         <ul class="menu-sub">
             <li class="menu-item" id="vendor" data-route="vendor">
-                <a href="{{url('vending-history')}}" class="menu-link" >
+                <a href="<?php echo e(url('vending-history')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Vending </div>
                 </a>
@@ -313,13 +313,13 @@
         <ul class="menu-sub">
             
             <li class="menu-item" id="all-meter-histories" data-route="all-meter-histories">
-                <a href="{{route('meter-history.all')}}" class="menu-link">
+                <a href="<?php echo e(route('meter-history.all')); ?>" class="menu-link">
                     <i class=""></i>
                     <div>All Meter Histories</div>
                 </a>
             </li>
             <li class="menu-item" id="meter-history-component" data-route="meter-history-component">
-                <a href="{{url('meter-history-component')}}" class="menu-link">
+                <a href="<?php echo e(url('meter-history-component')); ?>" class="menu-link">
                     <i class=""></i>
                     <div>Add Meter History Component</div>
                 </a>
@@ -335,7 +335,7 @@
         </a>
         <ul class="menu-sub">
             <li class="menu-item" id="all-maintenance" data-route="all-maintenance">
-                <a href="{{url('all-maintenance')}}" class="menu-link" >
+                <a href="<?php echo e(url('all-maintenance')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>All Maintenance</div>
                 </a>
@@ -346,33 +346,33 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="energy-maintenance" data-route="energy-maintenance">
-                        <a href="{{url('energy-maintenance')}}" class="menu-link" >
+                        <a href="<?php echo e(url('energy-maintenance')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Maintenance</div>
                         </a>
                     </li>
                     <li class="menu-item" id="energy-issue" data-route="energy-issue">
-                        <a href="{{url('energy-issue')}}" class="menu-link" >
+                        <a href="<?php echo e(url('energy-issue')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Issues</div>
                         </a>
                     </li>  
                     <li class="menu-item" id="energy-action" data-route="energy-action">
-                        <a href="{{url('energy-action')}}" class="menu-link" >
+                        <a href="<?php echo e(url('energy-action')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Actions</div>
                         </a>
                     </li>
-                    @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                    <?php if(Auth::guard('user')->user()->user_type_id == 1 ||
                         Auth::guard('user')->user()->user_type_id == 2 ||
-                        Auth::guard('user')->user()->user_type_id == 4)
+                        Auth::guard('user')->user()->user_type_id == 4): ?>
                         <li class="menu-item" id="energy-generator-turbine" data-route="energy-generator-turbine">
-                            <a href="{{url('energy-generator-turbine')}}" class="menu-link" >
+                            <a href="<?php echo e(url('energy-generator-turbine')); ?>" class="menu-link" >
                                 <i class=""></i>
                                 <div>Generators/Turbines</div>
                             </a>
                         </li>
-                    @endif
+                    <?php endif; ?>
                 </ul>
             </li>
             <li class="menu-item" id="refrigerator-maintenance-tab" data-route="refrigerator-maintenance-tab">
@@ -381,19 +381,19 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="refrigerator-maintenance" data-route="refrigerator-maintenance">
-                        <a href="{{url('refrigerator-maintenance')}}" class="menu-link" >
+                        <a href="<?php echo e(url('refrigerator-maintenance')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Maintenance</div>
                         </a>
                     </li>
                     <li class="menu-item" id="refrigerator-issue" data-route="refrigerator-issue">
-                        <a href="{{url('refrigerator-issue')}}" class="menu-link" >
+                        <a href="<?php echo e(url('refrigerator-issue')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Issues</div>
                         </a>
                     </li> 
                     <li class="menu-item" id="refrigerator-action" data-route="refrigerator-action">
-                        <a href="{{url('refrigerator-action')}}" class="menu-link" >
+                        <a href="<?php echo e(url('refrigerator-action')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Actions</div>
                         </a>
@@ -407,19 +407,19 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="water-maintenance" data-route="water-maintenance">
-                        <a href="{{url('water-maintenance')}}" class="menu-link" >
+                        <a href="<?php echo e(url('water-maintenance')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Maintenance</div>
                         </a>
                     </li>
                     <li class="menu-item" id="water-issue" data-route="water-issue">
-                        <a href="{{url('water-issue')}}" class="menu-link" >
+                        <a href="<?php echo e(url('water-issue')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Issues</div>
                         </a>
                     </li>
                     <li class="menu-item" id="water-action" data-route="water-action">
-                        <a href="{{url('water-action')}}" class="menu-link" >
+                        <a href="<?php echo e(url('water-action')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Actions</div>
                         </a>
@@ -433,19 +433,19 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="internet-maintenance" data-route="internet-maintenance">
-                        <a href="{{url('internet-maintenance')}}" class="menu-link" >
+                        <a href="<?php echo e(url('internet-maintenance')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Maintenance</div>
                         </a>
                     </li>
                     <li class="menu-item" id="internet-issue" data-route="internet-issue">
-                        <a href="{{url('internet-issue')}}" class="menu-link" >
+                        <a href="<?php echo e(url('internet-issue')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Issues</div>
                         </a>
                     </li> 
                     <li class="menu-item" id="internet-action" data-route="internet-action">
-                        <a href="{{url('internet-action')}}" class="menu-link" >
+                        <a href="<?php echo e(url('internet-action')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Actions</div>
                         </a>
@@ -458,7 +458,7 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="agriculture-maintenance" data-route="agriculture-maintenance">
-                        <a href="{{url('agriculture-maintenance')}}" class="menu-link" >
+                        <a href="<?php echo e(url('agriculture-maintenance')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Actions/Issues</div>
                         </a>
@@ -467,7 +467,7 @@
             </li>
 
             <li class="menu-item" id="energy-safety" data-route="energy-safety">
-                <a href="{{url('energy-safety')}}" class="menu-link" >
+                <a href="<?php echo e(url('energy-safety')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Meters Safety Check</div>
                 </a>
@@ -479,13 +479,13 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="water-summary" data-route="water-summary">
-                        <a href="{{url('water-summary')}}" class="menu-link" >
+                        <a href="<?php echo e(url('water-summary')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Summary</div>
                         </a>
                     </li>
                     <li class="menu-item" id="quality-result" data-route="quality-result">
-                        <a href="{{url('quality-result')}}" class="menu-link" >
+                        <a href="<?php echo e(url('quality-result')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Results</div>
                         </a>
@@ -506,28 +506,28 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="energy-system" data-route="energy-system">
-                        <a href="{{url('energy-system')}}" class="menu-link" >
+                        <a href="<?php echo e(url('energy-system')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Energy System</div>
                         </a>
                     </li>
-                @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                Auth::guard('user')->user()->user_type_id == 2)
+                <?php if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2): ?>
                     <li class="menu-item" id="energy-cost" data-route="energy-cost">
-                        <a href="{{url('energy-cost')}}" class="menu-link" >
+                        <a href="<?php echo e(url('energy-cost')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Energy Cost</div>
                         </a>
                     </li>
-                @endif
-                @if(Auth::guard('user')->user()->user_type_id == 1)
+                <?php endif; ?>
+                <?php if(Auth::guard('user')->user()->user_type_id == 1): ?>
                     <li class="menu-item" id="donor-cost" data-route="donor-cost">
-                        <a href="{{url('donor-cost')}}" class="menu-link" >
+                        <a href="<?php echo e(url('donor-cost')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Donor Fund</div>
                         </a>
                     </li>
-                @endif
+                <?php endif; ?>
                 </ul>
             </li>
             <li class="menu-item" id="water-system-tab" data-route="water-system-tab">
@@ -537,13 +537,13 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="water-system" data-route="water-system">
-                        <a href="{{url('water-system')}}" class="menu-link" >
+                        <a href="<?php echo e(url('water-system')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All water systems</div>
                         </a> 
                     </li>
                     <li class="menu-item" id="water-log" data-route="water-log">
-                        <a href="{{url('water-log')}}" class="menu-link" >
+                        <a href="<?php echo e(url('water-log')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>Water logframe</div>
                         </a>
@@ -557,13 +557,13 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="internet-system" data-route="internet-system">
-                        <a href="{{url('internet-system')}}" class="menu-link" >
+                        <a href="<?php echo e(url('internet-system')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Internet Systems</div>
                         </a>
                     </li>
                     <!-- <li class="menu-item" id="internet-cluster">
-                        <a href="{{url('internet-cluster')}}" class="menu-link" >
+                        <a href="<?php echo e(url('internet-cluster')); ?>" class="menu-link" >
                             <i class=""></i>
                             <div>All Internet Clusters</div>
                         </a>
@@ -577,7 +577,7 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item" id="agriculture-system" data-route="agriculture-system">
-                        <a href="{{url('agriculture-system')}}" class="menu-link">
+                        <a href="<?php echo e(url('agriculture-system')); ?>" class="menu-link">
                             <i class=""></i>
                             <div>All Agriculture Systems</div>
                         </a>
@@ -595,7 +595,7 @@
         </a>
         <ul class="menu-sub">
             <li class="menu-item" id="all-incident" data-route="all-incident">
-                <a href="{{url('all-incident')}}" class="menu-link" >
+                <a href="<?php echo e(url('all-incident')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>All Incidents</div>
                 </a>
@@ -610,19 +610,19 @@
         </a>
         <ul class="menu-sub">
             <li class="menu-item" id="region" data-route="region">
-                <a href="{{url('region')}}" class="menu-link" >
+                <a href="<?php echo e(url('region')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>All Regions</div>
                 </a>
             </li>
             <li class="menu-item" id="sub-region" data-route="sub-region">
-                <a href="{{url('sub-region')}}" class="menu-link" >
+                <a href="<?php echo e(url('sub-region')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Sub Regions</div>
                 </a>
             </li>
             <li class="menu-item" id="sub-sub-region" data-route="sub-sub-region">
-                <a href="{{url('sub-sub-region')}}" class="menu-link" >
+                <a href="<?php echo e(url('sub-sub-region')); ?>" class="menu-link" >
                     <i class=""></i>
                     <div>Sub Sub Regions</div>
                 </a>
@@ -631,39 +631,39 @@
     </li>
     
     <li class="menu-item" id="workshop" data-route="workshop">
-        <a href="{{url('all-workshop')}}" class="menu-link">
+        <a href="<?php echo e(url('all-workshop')); ?>" class="menu-link">
             <i class="menu-icon tf-icons bx bx-book-alt"></i>
             <div>Workshops</div>
         </a>
     </li>
 
-    @if(Auth::guard('user')->user()->user_type_id == 1 ||
-        Auth::guard('user')->user()->user_type_id == 2)
+    <?php if(Auth::guard('user')->user()->user_type_id == 1 ||
+        Auth::guard('user')->user()->user_type_id == 2): ?>
     <li class="menu-item" id="donor" data-route="donor">
-        <a href="{{url('donor')}}" class="menu-link" >
+        <a href="<?php echo e(url('donor')); ?>" class="menu-link" >
             <i class="menu-icon tf-icons bx bx-money"></i>
             <div>Donors</div>
         </a>
     </li>
     <!-- <li class="menu-item" id="chart">
-        <a href="{{url('chart')}}" class="menu-link">
+        <a href="<?php echo e(url('chart')); ?>" class="menu-link">
             <i class="menu-icon tf-icons bx bx-chart"></i>
             <div>Charts</div>
         </a>
     </li> -->
     <li class="menu-item" id="user" data-route="user">
-        <a href="{{url('user')}}" class="menu-link">
+        <a href="<?php echo e(url('user')); ?>" class="menu-link">
             <i class="menu-icon tf-icons bx bx-group"></i>
             <div>Users</div>
         </a>
     </li>
     <li class="menu-item" id="setting" data-route="setting">
-        <a href="{{url('setting')}}" class="menu-link">
+        <a href="<?php echo e(url('setting')); ?>" class="menu-link">
             <i class="menu-icon tf-icons bx bx-cog"></i>
             <div>Settings</div>
         </a>
     </li>
-    @endif
+    <?php endif; ?>
 </ul>
 
 
@@ -908,4 +908,4 @@
         setTimeout(function(){ clearInterval(jqInterval); }, 5000);
     }
 })();
-</script>
+</script><?php /**PATH C:\Users\User\CometProject\Cometme-Platform\resources\views/layouts/sections/menu/vertical.blade.php ENDPATH**/ ?>

@@ -1,4 +1,0 @@
-[23-Mar-2025 01:57:47 America/Boise] PHP Fatal error:  Uncaught Error: Class "Auth" not found in /home1/cometmei/public_html/routes/web.php:18
-Stack trace:
-#0 {main}
-  thrown in /home1/cometmei/public_html/routes/web.php on line 18
