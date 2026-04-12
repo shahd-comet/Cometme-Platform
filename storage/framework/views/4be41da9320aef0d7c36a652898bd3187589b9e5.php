@@ -253,41 +253,41 @@
 
     // This for adding a new vendor username
     $('#addVendorUsernameForm').on('submit', function(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const serviceId = $('#modalServiceId').val();
-    const newUsername = $('#newVendorUsername').val().trim();
+        const serviceId = $('#modalServiceId').val();
+        const newUsername = $('#newVendorUsername').val().trim();
 
-    if (!newUsername) {
-        alert('Please enter a username.');
-        return;
-    }
+        if (!newUsername) {
+            alert('Please enter a username.');
+            return;
+        }
 
-    // Get the select element for this service
-    const select = $('#vendingPointUsername' + serviceId);
+        // Get the select element for this service
+        const select = $('#vendingPointUsername' + serviceId);
 
-    // Check if option already exists
-    if (select.find("option[value='" + newUsername + "']").length === 0) {
-        const newOption = new Option(newUsername, newUsername, true, true);
-        select.append(newOption);
-    }
+        // Check if option already exists
+        if (select.find("option[value='" + newUsername + "']").length === 0) {
+            const newOption = new Option(newUsername, newUsername, true, true);
+            select.append(newOption);
+        }
 
-    // Get currently selected values; force array
-    let selectedValues = select.val();
-    if (!Array.isArray(selectedValues)) {
-        selectedValues = selectedValues ? [selectedValues] : [];
-    }
+        // Get currently selected values; force array
+        let selectedValues = select.val();
+        if (!Array.isArray(selectedValues)) {
+            selectedValues = selectedValues ? [selectedValues] : [];
+        }
 
-    // Add new username
-    selectedValues.push(newUsername);
-    select.val(selectedValues);
+        // Add new username
+        selectedValues.push(newUsername);
+        select.val(selectedValues);
 
-    // Refresh Bootstrap Select
-    select.selectpicker('refresh');
+        // Refresh Bootstrap Select
+        select.selectpicker('refresh');
 
-    // Close modal
-    $('#addVendorUsernameModal').modal('hide');
-});
+        // Close modal
+        $('#addVendorUsernameModal').modal('hide');
+    });
     
     $(document).ready(function() {
 
