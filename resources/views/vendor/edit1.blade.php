@@ -167,6 +167,105 @@
                     </div>
                 </div>
 
+                <hr>
+                <label class="text-info mb-3">Vendor UserNames & Served Communities</label>
+
+                @foreach($services as $service)
+                <div class="col-md-12 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+
+                            @php
+                                $existingUsers = $vendorData->where('service_type_id', $service->id);
+                                $isChecked = $existingUsers->count() > 0;
+                            @endphp
+
+                            <!-- Checkbox + Add Vendor Username Button -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input service-checkbox" type="checkbox"
+                                        name="service_type_id[]"
+                                        value="{{ $service->id }}"
+                                        {{ $isChecked ? 'checked' : '' }}>
+                                    <label class="form-check-label mb-0">
+                                        Activate Vendor UserName for:
+                                        <span class="text-info">{{ $service->service_name }}</span>
+                                    </label>
+                                </div>
+
+                                <button type="button" class="btn btn-sm btn-primary add-vendor-btn"
+                                        data-service-id="{{ $service->id }}">
+                                    Add a new Vendor Username & Served Communities
+                                </button>
+                            </div>
+
+                            <!-- Existing Users -->
+                            <div class="existing-user-container" data-service-id="{{ $service->id }}">
+                                @foreach($existingUsers as $user)
+                                    @php
+                                        $userCommunities = $vendorCommunities[$service->id][$user->vendor_user_name_id] ?? collect();
+                                    @endphp
+
+                                    <div class="vendor-user-entry border rounded p-2 mb-2">
+
+                                        <!-- Username + Delete -->
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div style="flex:1; margin-right:10px;">
+                                                <select name="vendor_user_name_id[{{ $service->id }}][]"
+                                                        class="selectpicker form-control"
+                                                        data-live-search="true">
+                                                    @foreach($vendorUsers as $vendorUser)
+                                                        <option value="{{ $vendorUser->id }}"
+                                                            {{ $vendorUser->id == $user->vendor_user_name_id ? 'selected' : '' }}>
+                                                            {{ $vendorUser->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-success open-add-username-modal" 
+                                                    data-service-id="{{ $service->id }}">
+                                                Add New Username
+                                            </button>
+                                        </div>
+
+                                        <!-- Communities -->
+                                        <div>
+                                            <label class="mb-1">Served Communities</label>
+
+                                            <!-- Add community -->
+                                            <div class="d-flex gap-2 mb-2">
+                                                <select class="selectpicker form-control community-select"
+                                                        data-service-id="{{ $service->id }}"
+                                                        data-user-id="{{ $user->vendor_user_name_id }}">
+                                                    <option disabled selected>Select community</option>
+                                                    @foreach($communities as $community)
+                                                        <option value="{{ $community->id }}">{{ $community->english_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <!-- Selected communities list -->
+                                            <div class="selected-communities">
+                                                @foreach($userCommunities as $uc)
+                                                    <div class="community-item d-flex justify-content-between align-items-center mb-1 border rounded px-2 py-1"
+                                                        data-id="{{ $uc->id }}">
+                                                        <span>{{ $uc->english_name }}</span>
+                                                        <button type="button" class="btn btn-sm btn-danger remove-community">Delete</button>
+                                                        <input type="hidden"
+                                                            name="served_communities[{{ $service->id }}][{{ $user->vendor_user_name_id }}][]"
+                                                            value="{{ $uc->community_id }}">
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+
 
 
                 <div class="row" style="margin-top:20px">

@@ -1,8 +1,8 @@
-@extends('layouts/layoutMaster')
 
-@section('title', 'Create Vendor')
 
-@include('layouts.all')
+<?php $__env->startSection('title', 'Create Vendor'); ?>
+
+<?php echo $__env->make('layouts.all', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 <style>
 
@@ -17,7 +17,7 @@
     }
 </style>
 
-@section('content') 
+<?php $__env->startSection('content'); ?> 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
 
@@ -29,8 +29,8 @@
     <div class="card-content collapse show">
         <div class="card-body">
             <form method="POST" enctype='multipart/form-data' id="vendingPointForm"
-                action="{{url('vending-point')}}">
-                @csrf
+                action="<?php echo e(url('vending-point')); ?>">
+                <?php echo csrf_field(); ?>
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
@@ -95,9 +95,9 @@
                                 class="selectpicker form-control" 
                                 data-live-search="true">
                                 <option disabled selected>Choose one...</option>
-                                @foreach($vendorRegions as $vendorRegion)
-                                <option value="{{$vendorRegion->id}}">{{$vendorRegion->english_name}}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $vendorRegions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendorRegion): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($vendorRegion->id); ?>"><?php echo e($vendorRegion->english_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </fieldset>
                         <div id="vendor_region_id_error" style="color: red;"></div>
@@ -107,7 +107,7 @@
                 <hr>
                 <label class="text-info" style="margin-bottom:15px">Vendor UserNames & Served Communities</label>
 
-                @foreach($services as $service)
+                <?php $__currentLoopData = $services; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $service): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="col-md-12 mb-4">
                     <div class="card h-100 shadow-sm"> 
                         <div class="card-body">
@@ -115,16 +115,16 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div class="form-check">
                                     <input class="form-check-input service-checkbox" type="checkbox" 
-                                        id="serviceCheck{{ $service->id }}" name="service_type_id[]"
-                                        data-service-id="{{ $service->id }}"  value="{{ $service->id }}">
-                                    <label class="form-check-label mb-0" for="serviceCheck{{ $service->id }}">
+                                        id="serviceCheck<?php echo e($service->id); ?>" name="service_type_id[]"
+                                        data-service-id="<?php echo e($service->id); ?>"  value="<?php echo e($service->id); ?>">
+                                    <label class="form-check-label mb-0" for="serviceCheck<?php echo e($service->id); ?>">
                                         Activate Vendor UserName for:
-                                        <span class="text-info">{{ $service->service_name }}</span>
+                                        <span class="text-info"><?php echo e($service->service_name); ?></span>
                                     </label>
                                 </div>
                                 <button type="button" disabled
                                         class="btn btn-sm btn-success add-vendor-btn"
-                                        data-service-id="{{ $service->id }}">
+                                        data-service-id="<?php echo e($service->id); ?>">
                                     Add a new username
                                 </button>
                             </div>
@@ -134,17 +134,18 @@
                                 <!-- Vendor Username -->
                                 <div class="col-md-6">
                                     <label class="form-label mb-1">Vendor UserName</label>
-                                    <select name="vendor_user_name_id[{{ $service->id }}][]" 
+                                    <select name="vendor_user_name_id[<?php echo e($service->id); ?>][]" 
                                             class="vendingPointUsername selectpicker form-control" 
                                             data-live-search="true" 
-                                            id="vendingPointUsername{{ $service->id }}" 
+                                            id="vendingPointUsername<?php echo e($service->id); ?>" 
                                             title="Select vendor usernames" 
                                             disabled>
-                                        @foreach($vendorUsers as $vendorUser)
-                                            <option value="{{ $vendorUser->id }}">
-                                                {{ $vendorUser->name }}
+                                        <?php $__currentLoopData = $vendorUsers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendorUser): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($vendorUser->id); ?>">
+                                                <?php echo e($vendorUser->name); ?>
+
                                             </option>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="vendor-username-error" style="color: red;"></div>
                                 </div>
@@ -152,16 +153,17 @@
                                 <!-- Served Communities -->
                                 <div class="col-md-6">
                                     <label class="form-label mb-1">Served Communities</label>
-                                    <select name="served_communities[{{ $service->id }}][]" 
+                                    <select name="served_communities[<?php echo e($service->id); ?>][]" 
                                             class="selectpicker form-control" 
                                             data-live-search="true" 
                                             multiple 
                                             disabled>
-                                        @foreach($communities as $community)
-                                            <option value="{{ $community->id }}">
-                                                {{ $community->english_name }}
+                                        <?php $__currentLoopData = $communities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $community): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($community->id); ?>">
+                                                <?php echo e($community->english_name); ?>
+
                                             </option>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="served-communities-error" style="color: red;"></div>
                                 </div>
@@ -170,7 +172,7 @@
                         </div>
                     </div>
                 </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
@@ -195,7 +197,7 @@
 </div>
 
 
-@include('vendor.create-vendor-username')
+<?php echo $__env->make('vendor.create-vendor-username', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 <script>
 
@@ -375,4 +377,5 @@
 
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts/layoutMaster', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\CometProject\Cometme-Platform\resources\views/vendor/create.blade.php ENDPATH**/ ?>
