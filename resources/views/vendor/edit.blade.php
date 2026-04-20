@@ -114,12 +114,12 @@
                                 class="selectpicker form-control" 
                                 data-live-search="true">
                                 @if($vendingPoint->community_id)
-                                    <option disabled selected>{{$vendingPoint->Community->english_name}}</option>
+                                    <option disabled selected>{{$vendingPoint->Community?->english_name}}</option>
                                     @foreach($communities as $community)
                                         <option value="{{$community->id}}">{{$community->english_name}}</option>
                                     @endforeach
                                 @else @if($vendingPoint->town_id)
-                                    <option disabled selected>{{$vendingPoint->Town->english_name}}</option>
+                                    <option disabled selected>{{$vendingPoint->Town?->english_name}}</option>
                                     @foreach($towns as $town)
                                         <option value="{{$town->id}}">{{$town->english_name}}</option>
                                     @endforeach
@@ -153,7 +153,138 @@
                         </fieldset>
                         <div id="vendor_region_id_error" style="color: red;"></div>
                     </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Status</label>
+                            <select name="status" 
+                                class="selectpicker form-control" 
+                                data-live-search="true">
+                                <option disabled selected>{{$vendingPoint->status}}</option>
+                                <option value="Active">Active</option>
+                                <option value="Not active">Not active</option>
+                            </select>
+                        </fieldset>
+                    </div>
                 </div>
+
+                <hr>
+                <label class="text-info mb-3">Vendor UserNames & Served Communities</label>
+                @foreach($services as $service)
+
+                    @php
+                        $serviceUsers = $vendorData[$service->id] ?? collect();
+                    @endphp
+
+                    <div class="col-md-12 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+
+                                <!-- SERVICE CHECKBOX -->
+                                <div class="form-check mb-3">
+                                    <input type="checkbox"
+                                        class="form-check-input service-checkbox"
+                                        name="service_type_id[]"
+                                        value="{{ $service->id }}"
+                                        data-service-id="{{ $service->id }}"
+                                        {{ $serviceUsers->count() ? 'checked' : '' }}>
+                                    
+                                    <label class="form-check-label">
+                                        {{ $service->service_name }}
+                                    </label>
+                                </div>
+
+                                <!-- USERS -->
+                                <div id="usersContainer{{ $service->id }}">
+
+                                    @if($serviceUsers->count())
+
+                                        @foreach($serviceUsers as $user)
+
+                                            @php
+                                                $communitiesList = $vendorCommunities[$service->id][$user->vendor_user_name_id] ?? collect();
+                                            @endphp
+
+                                            <div class="border p-2 mb-3">
+
+                                                <label>Vendor Username</label>
+
+                                                <select name="vendor_user_name_id[{{ $service->id }}][]"
+                                                    class="selectpicker form-control"
+                                                    data-live-search="true">
+
+                                                    @foreach($vendorUsers as $u)
+                                                        <option value="{{ $u->id }}"
+                                                            {{ $u->id == $user->vendor_user_name_id ? 'selected' : '' }}>
+                                                            {{ $u->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                                <label class="mt-2">Communities</label>
+
+                                                <select name="served_communities[{{ $service->id }}][{{ $user->vendor_user_name_id }}][]"
+                                                    class="selectpicker form-control community-select"
+                                                    multiple
+                                                    data-service="{{ $service->id }}"
+                                                    data-user="{{ $user->vendor_user_name_id }}">
+
+                                                    @foreach($communities as $community)
+                                                        <option value="{{ $community->id }}"
+                                                            {{ $communitiesList->pluck('community_id')->contains($community->id) ? 'selected' : '' }}>
+                                                            {{ $community->english_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                                <div class="selected-communities mt-2"
+                                                    id="tags{{ $service->id }}{{ $user->vendor_user_name_id }}">
+                                                </div>
+
+                                            </div>
+
+                                        @endforeach
+
+                                    @else
+
+                                        <!-- EMPTY STATE -->
+                                        <div class="text-muted">
+                                            No usernames added yet. Enable service to add one.
+                                        </div>
+
+                                    @endif
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                @endforeach
+
+                <script type="text/template" id="usernameTemplate">
+                    <div class="border p-2 mb-3 username-block">
+                        <label>Vendor Username</label>
+                        <select class="selectpicker form-control username-select" data-live-search="true">
+                            <option disabled selected>Choose username</option>
+                            @foreach($vendorUsers as $u)
+                                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                            @endforeach
+                        </select>
+
+                        <label class="mt-2">Communities</label>
+                        <select class="selectpicker form-control community-select" multiple data-live-search="true">
+                            <option disabled selected>Choose communities</option>
+                            @foreach($communities as $c)
+                                <option value="{{ $c->id }}">{{ $c->english_name }}</option>
+                            @endforeach
+                        </select>
+
+                        <div class="selected-communities mt-2"></div>
+                    </div>
+                </script>
+
+                <div id="usersContainer1"></div>
+
 
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
@@ -166,9 +297,6 @@
                         </fieldset>
                     </div>
                 </div>
-
-
-
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -199,7 +327,6 @@
             }
         });
     });
-
 
 
     // When clicking "Add New Username"
@@ -242,114 +369,118 @@
     });
 
 
-    // Delete Community 
+    function renderTags(serviceId, userId) {
+
+        const select = $(`select[name="served_communities[${serviceId}][${userId}][]"]`);
+        const container = $(`#tags${serviceId}${userId}`);
+
+        container.empty();
+
+        let selected = select.val() || [];
+
+        if (!Array.isArray(selected)) {
+            selected = [selected];
+        }
+
+        selected.forEach(id => {
+
+            const text = select.find(`option[value="${id}"]`).text();
+
+            container.append(`
+                <div class="community-item">
+                    ${text}
+                    <button type="button"
+                            class="btn btn-sm btn-danger remove-community"
+                            data-service="${serviceId}"
+                            data-user="${userId}"
+                            data-id="${id}">
+                        ×
+                    </button>
+                </div>
+            `);
+        });
+    }
+
+    // when dropdown changes
+    $(document).on('changed.bs.select change', '.community-select', function () {
+
+        const serviceId = $(this).data('service');
+        const userId = $(this).data('user');
+
+        renderTags(serviceId, userId);
+    });
+
+    // REMOVE BUTTON FIX
     $(document).on('click', '.remove-community', function () {
 
-        var $ele = $(this).closest('.community-item');
-        var id = $ele.data('id'); 
+        const serviceId = $(this).data('service');
+        const userId = $(this).data('user');
+        const id = String($(this).data('id'));
 
-        Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure you want to delete this served community?',
-            showDenyButton: true,
-            confirmButtonText: 'Confirm'
-        }).then((result) => {
-            if(result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('deleteServedCommunity') }}",
-                    type: 'get',
-                    data: {id: id},
-                    success: function(response) {
-                        if(response.success == 1) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.msg,
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-                                $ele.fadeOut(1000, function () {
-                                    $ele.remove();
-                                });
-                            });
-                        } 
-                    }
-                });
-            } else if (result.isDenied) {
+        const select = $(`select[name="served_communities[${serviceId}][${userId}][]"]`);
 
-                Swal.fire('Changes are not saved', '', 'info')
-            }
+        let values = select.val() || [];
+
+        if (!Array.isArray(values)) {
+            values = [values];
+        }
+
+        // IMPORTANT FIX: compare as strings
+        values = values.map(String).filter(v => v !== id);
+
+        select.val(values);
+
+        // refresh bootstrap-select (CRITICAL)
+        select.selectpicker('refresh');
+
+        renderTags(serviceId, userId);
+    });
+
+    // INIT ON LOAD
+    $(document).ready(function () {
+
+        $('.community-select').each(function () {
+
+            const serviceId = $(this).data('service');
+            const userId = $(this).data('user');
+
+            renderTags(serviceId, userId);
         });
+
     });
 
-    // Add a new vendor username with served communities
-    $(document).on('click', '.add-vendor-btn', function() {
+    // Enable/disable select based on checkbox
+    $(document).on('change', '.service-checkbox', function () {
+        const serviceId = $(this).data('service-id');
+        const container = $('#usersContainer' + serviceId);
 
-        let serviceId = $(this).data('service-id');
-        let container = $('.existing-user-container[data-service-id="'+serviceId+'"]');
-        let tempUserId = 'new_' + Date.now();
+        container.empty();
 
-        let newEntry = `
-        <div class="vendor-user-entry border rounded p-2 mb-2 box-shadow" style="background-color: #d4edda;">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div style="flex:1; margin-right:10px;">
-                    <select name="vendor_user_name_id[${serviceId}][]" class="selectpicker form-control" data-live-search="true">
-                        <option disabled selected>Select vendor username</option>
-                        @foreach($vendorUsers as $vendorUser)
-                            <option value="{{ $vendorUser->id }}">{{ $vendorUser->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <button type="button" class="btn btn-danger btn-sm remove-vendor-user">Delete New Username</button>
-            </div>
-            <div>
-                <label class="mb-1">Served Communities</label>
-                <div class="d-flex gap-2 mb-2">
-                    <select class="selectpicker form-control community-select" multiple data-service-id="${serviceId}" data-user-id="${tempUserId}">
-                        <option disabled selected>Select community</option>
-                        @foreach($communities as $community)
-                            <option value="{{ $community->id }}">{{ $community->english_name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="selected-communities"></div>
-            </div>
-        </div>`;
+        if ($(this).is(':checked')) {
+            let templateHtml = $('#usernameTemplate').html();
+            let newRow = $(templateHtml);
 
-        let $entry = $(newEntry);
-        container.append($entry);
-        $('.selectpicker').selectpicker('refresh');
+            newRow.addClass('username-block');
 
-        // Animate the background color to fade out to normal
-        $entry.animate({ backgroundColor: "#ffffff" }, 20000);
-    });
+            // Set names dynamically
+            newRow.find('.username-select')
+                .attr('name', `vendor_user_name_id[${serviceId}][]`);
 
-    // 3. Add community to a username
-    $(document).on('click', '.add-community-btn', function() {
-        let parent = $(this).closest('.vendor-user-entry');
-        let select = parent.find('.community-select');
-        let selected = select.val();
+            newRow.find('.community-select')
+                .attr('name', `served_communities[${serviceId}][new][]`)
+                .attr('data-service', serviceId)
+                .attr('data-user', 'new');
 
-        if(selected) {
-            selected.forEach(function(val){
-                // Prevent duplicates
-                if(parent.find(`.selected-communities input[value="${val}"]`).length === 0){
-                    let text = select.find('option[value="'+val+'"]').text();
-                    let userId = select.data('user-id');
-                    let serviceId = select.data('service-id');
+            container.append(newRow);
 
-                    let html = `
-                    <div class="community-item d-flex justify-content-between align-items-center mb-1 border rounded px-2 py-1">
-                        <span>${text}</span>
-                        <button type="button" class="btn btn-sm btn-danger remove-community">Delete</button>
-                        <input type="hidden" name="served_communities[${serviceId}][${userId}][]" value="${val}">
-                    </div>`;
-                    parent.find('.selected-communities').append(html);
-                }
+            newRow.find('.selectpicker').each(function () {
+                $(this).selectpicker();
             });
-            select.val(null).selectpicker('refresh');
         }
     });
+
+
+
 
 </script>
 

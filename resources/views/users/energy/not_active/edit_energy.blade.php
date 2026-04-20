@@ -338,33 +338,21 @@
 
                         <fieldset class="form-group">
 
-                            <label class='col-md-12 control-label'>Vendor Name</label> 
+                            <label class='col-md-12 control-label'>Energy System Type</label> 
 
-                            <select name='vendor_username_id' data-live-search="true"
+                            <select name='energy_system_type_id'  data-live-search="true"
 
                             class="selectpicker form-control">
 
                                 <option selected disabled>
 
-                                    @if($vendor)
-
-                                    {{$vendor->name}}
-
-                                    @else
-
-                                    Choose one...
-
-                                    @endif
+                                    {{$energyUser->EnergySystem->EnergySystemType->name}}
 
                                 </option>
 
-                                @foreach($communityVendors as $vendor)
+                                @foreach($energySystemTypes as $energySystemType)
 
-                                    <option value="{{$vendor->vendor_username_id}}">
-
-                                        {{$vendor->name}}
-
-                                    </option>
+                                    <option value="{{$energySystemType->id}}">{{$energySystemType->name}}</option>
 
                                 @endforeach
 
@@ -372,27 +360,37 @@
 
                         </fieldset> 
 
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+
                         <fieldset class="form-group">
 
-                            <label class='col-md-12 control-label'>System Type</label>
+                            <label class='col-md-12 control-label'>Energy System</label> 
 
-                            <select name='energy_system_type_id' data-live-search="true"
+                            <select name='energy_system_id'  data-live-search="true"
 
-                                class="selectpicker form-control">
+                            class="selectpicker form-control">
 
-                                <option disabled {{ empty($energyUser->energy_system_type_id) ? 'selected' : '' }}>Choose one...</option>
+                                <option selected disabled>
 
-                                @foreach($energySystemTypes as $energySystemType)
+                                    {{$energyUser->EnergySystem->name}}
 
-                                    <option value="{{$energySystemType->id}}" {{ (isset($energyUser->energy_system_type_id) && $energyUser->energy_system_type_id == $energySystemType->id) ? 'selected' : '' }}>{{$energySystemType->name}}</option>
+                                </option>
+
+                                @foreach($energySystems as $energySystem)
+
+                                    <option value="{{$energySystem->id}}">{{$energySystem->name}}</option>
 
                                 @endforeach
 
-                            </select>
+                            </select> 
 
-                        </fieldset>
+                        </fieldset> 
 
                     </div>
+
+  
 
                     <div class="col-xl-6 col-lg-6 col-md-6">
 
@@ -491,34 +489,6 @@
                 </div> 
 
                 <div class="row">
-
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-
-                        <fieldset class="form-group">
-
-                            <label class='col-md-12 control-label'>Energy System</label> 
-
-                            <select name='energy_system_id'  data-live-search="true"
-
-                            class="selectpicker form-control">
-
-                                <option selected disabled>
-
-                                    {{$energyUser->EnergySystem->name}}
-
-                                </option>
-
-                                @foreach($energySystems as $energySystem)
-
-                                    <option value="{{$energySystem->id}}">{{$energySystem->name}}</option>
-
-                                @endforeach
-
-                            </select> 
-
-                        </fieldset> 
-
-                    </div>
 
                     <div class="col-xl-6 col-lg-6 col-md-6">
 

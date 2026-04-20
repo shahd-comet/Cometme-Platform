@@ -12,9 +12,9 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use DB;  
 
-class VendingPointExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
+class VendingHistoryExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
     WithStyles, WithEvents
-{ 
+{  
 
     protected $request;
 
@@ -28,28 +28,29 @@ class VendingPointExport implements FromCollection, WithHeadings, WithTitle, Sho
     */
     public function collection()
     {
-        $data = DB::table('vendors')
+        $data = DB::table('vending_histories')
+            ->join('vendor_services', 'vending_histories.vendor_service_id', 'vendor_services.id')
+            ->join('vendors', 'vendor_services.vendor_id', 'vendors.id')
+            ->leftJoin('service_types', 'vendor_services.service_type_id', 'service_types.id')
+            ->leftJoin('users', 'vending_histories.user_id', 'users.id')
             ->leftJoin('vendor_regions', 'vendors.vendor_region_id', 'vendor_regions.id')
             ->leftJoin('communities', 'vendors.community_id', 'communities.id')
             ->leftJoin('towns', 'vendors.town_id', 'towns.id')
-            ->leftJoin('vendor_services', 'vendor_services.vendor_id', 'vendors.id')
-            ->leftJoin('service_types', 'vendor_services.service_type_id', 'service_types.id')
-            ->leftJoin('vendor_user_names', 'vendor_services.vendor_user_name_id', 'vendor_user_names.id')
-            ->leftJoin('community_vendors', 'vendors.id', 'community_vendors.vendor_id')
-            ->leftJoin('communities as served_communities', 'community_vendors.community_id', 'served_communities.id')
-            ->where('vendors.is_archived', 0)
+            ->where('vending_histories.is_archived', 0)
             ->select(
-                'vendors.english_name as english_name',
-                'vendors.arabic_name as arabic_name',
+                'vendors.english_name as vendor',
+                'vendors.phone_number',
                 'vendors.status',
-                'vendor_regions.english_name as region', 'vendors.phone_number',
-                'vendors.additional_phone_number',
-                DB::raw('IFNULL(communities.english_name, towns.english_name) 
-                    as exported_value'),
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(service_types.service_name, '') SEPARATOR ', ') as service_name"),
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(vendor_user_names.name, '') SEPARATOR ', ') as username"),
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(served_communities.english_name, '') SEPARATOR ', ') as served_communities"),
-            )->groupBy('vendors.id');
+                'vending_histories.visit_date',
+                'service_types.service_name',
+                'vending_histories.collecting_date_from',
+                'vending_histories.collecting_date_to',
+                'vending_histories.total_amount_due',
+                'vending_histories.amount_collected',
+                'vending_histories.remaining_balance',
+                'users.name',
+                'vending_histories.notes',
+            )->groupBy('vending_histories.id');
 
 
         if($this->request->region_id) {
@@ -85,8 +86,8 @@ class VendingPointExport implements FromCollection, WithHeadings, WithTitle, Sho
     public function headings(): array
     {
 
-        return ["Vendor (English)", "Vendor (Arabic)", "Status", "Region", "Phone Number",
-            "Additional Phone Number", "Place", "Services", "Usernames", "Served Communities"];
+        return ["Vending Point", "Phone Number", "Status", "Visit Date", "Service", "Collecting Date From",
+            "Collecting Date To", "Total Amount", "Collected Amount", "Remaining Amount", "Visit By", "Notes"];
     }
 
 
@@ -113,7 +114,7 @@ class VendingPointExport implements FromCollection, WithHeadings, WithTitle, Sho
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:J1');
+        $sheet->setAutoFilter('A1:M1');
 
         return [
 
@@ -124,6 +125,6 @@ class VendingPointExport implements FromCollection, WithHeadings, WithTitle, Sho
 
     public function title(): string
     {
-        return 'Vending Points';
+        return 'Visiting Follow-Up';
     }
 }

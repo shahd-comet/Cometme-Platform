@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use DB;  
 
-class VendingPointExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
+class VendingPointCommunitiyExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
     WithStyles, WithEvents
 { 
 
@@ -28,28 +28,23 @@ class VendingPointExport implements FromCollection, WithHeadings, WithTitle, Sho
     */
     public function collection()
     {
-        $data = DB::table('vendors')
+        $data = DB::table('community_vendors')
+            ->leftJoin('service_types', 'community_vendors.service_type_id', 'service_types.id')
+            ->leftJoin('communities', 'community_vendors.community_id', 'communities.id')
+            ->leftJoin('vendor_user_names', 'community_vendors.vendor_username_id', 'vendor_user_names.id')
+            ->leftJoin('vendors', 'community_vendors.vendor_id', 'vendors.id')
             ->leftJoin('vendor_regions', 'vendors.vendor_region_id', 'vendor_regions.id')
-            ->leftJoin('communities', 'vendors.community_id', 'communities.id')
             ->leftJoin('towns', 'vendors.town_id', 'towns.id')
-            ->leftJoin('vendor_services', 'vendor_services.vendor_id', 'vendors.id')
-            ->leftJoin('service_types', 'vendor_services.service_type_id', 'service_types.id')
-            ->leftJoin('vendor_user_names', 'vendor_services.vendor_user_name_id', 'vendor_user_names.id')
-            ->leftJoin('community_vendors', 'vendors.id', 'community_vendors.vendor_id')
-            ->leftJoin('communities as served_communities', 'community_vendors.community_id', 'served_communities.id')
-            ->where('vendors.is_archived', 0)
+            ->where('community_vendors.is_archived', 0)
             ->select(
-                'vendors.english_name as english_name',
-                'vendors.arabic_name as arabic_name',
+                'communities.english_name as community',
+                'service_types.service_name',
+                'vendors.english_name as vendor',
                 'vendors.status',
-                'vendor_regions.english_name as region', 'vendors.phone_number',
-                'vendors.additional_phone_number',
-                DB::raw('IFNULL(communities.english_name, towns.english_name) 
-                    as exported_value'),
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(service_types.service_name, '') SEPARATOR ', ') as service_name"),
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(vendor_user_names.name, '') SEPARATOR ', ') as username"),
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(served_communities.english_name, '') SEPARATOR ', ') as served_communities"),
-            )->groupBy('vendors.id');
+                'vendors.phone_number',
+                'vendor_user_names.name as username',
+                'community_vendors.nis'
+            )->groupBy('community_vendors.id');
 
 
         if($this->request->region_id) {
@@ -85,8 +80,8 @@ class VendingPointExport implements FromCollection, WithHeadings, WithTitle, Sho
     public function headings(): array
     {
 
-        return ["Vendor (English)", "Vendor (Arabic)", "Status", "Region", "Phone Number",
-            "Additional Phone Number", "Place", "Services", "Usernames", "Served Communities"];
+        return ["Community", "Service", "Vending Point", "Status", "Phone Number",
+            "Usernames", "NIS"];
     }
 
 
@@ -113,7 +108,7 @@ class VendingPointExport implements FromCollection, WithHeadings, WithTitle, Sho
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:J1');
+        $sheet->setAutoFilter('A1:G1');
 
         return [
 
@@ -124,6 +119,6 @@ class VendingPointExport implements FromCollection, WithHeadings, WithTitle, Sho
 
     public function title(): string
     {
-        return 'Vending Points';
+        return 'Served Communities';
     }
 }

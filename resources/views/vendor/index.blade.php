@@ -50,7 +50,7 @@
                         </div> 
                     </div>
                     <form method="POST" enctype='multipart/form-data' id="exportFromEnergyHolder"
-                        action="{{ route('energy-meter.export') }}">
+                        action="{{ route('vending-point.export') }}">
                         @csrf
                         <div class="card-body"> 
                             <div class="row">
@@ -60,7 +60,11 @@
                                         <select name="region_id"
                                             class="selectpicker form-control" data-live-search="true">
                                             <option disabled selected>Search Region</option>
-                                          
+                                            @foreach($vendorRegions as $vendorRegion)
+                                                <option value="{{$vendorRegion->id}}">
+                                                    {{$vendorRegion->english_name}}
+                                                </option>
+                                            @endforeach
                                         </select> 
                                     </fieldset>
                                 </div>
@@ -80,19 +84,49 @@
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <label class='col-md-12 control-label'>Installation date from</label>
-                                        <input type="date" class="form-control" name="date_from"
-                                        id="installationEnergyDateFrom">
+                                        <label class='col-md-12 control-label'>Town</label>
+                                        <select name="town_id" class="selectpicker form-control"
+                                            data-live-search="true" >
+                                            <option disabled selected>Search Town</option>
+                                            @foreach($towns as $town)
+                                                <option value="{{$town->id}}">
+                                                    {{$town->english_name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <label class='col-md-12 control-label'>Installation date to</label>
-                                        <input type="date" class="form-control" name="date_to"
-                                        id="installationEnergyDateTo">
+                                        <label class='col-md-12 control-label'>Service</label>
+                                        <select name="service_id" class="selectpicker form-control"
+                                            data-live-search="true" >
+                                            <option disabled selected>Search Service</option>
+                                            @foreach($services as $service)
+                                                <option value="{{$service->id}}">
+                                                    {{$service->service_name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
                                     </fieldset>
                                 </div>
-                            </div><br>
+                            </div> 
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Vendor</label>
+                                        <select name="vendor_id" class="selectpicker form-control"
+                                            data-live-search="true" >
+                                            <option disabled selected>Search Vendor</option>
+                                            @foreach($vendors as $vendor)
+                                                <option value="{{$vendor->id}}">
+                                                    {{$vendor->english_name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <label class='col-md-12 control-label'>Download Excel</label>
@@ -112,7 +146,7 @@
 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-    <span class="text-muted fw-light">Vending </span> Points and History
+    <span class="text-muted fw-light">Vending </span> Points and Visiting
 </h4>
 
 @if(session()->has('message'))
@@ -190,7 +224,7 @@
                 <!-- <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Filter by Vendor</label>
-                        <select name="service" class="selectpicker form-control"
+                        <select name="vendor_id" class="selectpicker form-control"
                             data-live-search="true" id="filterByVendor">
                             <option disabled selected>Search Vendor</option>
                             @foreach($vendors as $vendor)
@@ -217,7 +251,7 @@
                 <li class="nav-item">
                     <a class="nav-link active" data-bs-toggle="tab" href="#vending-history" role="tab">
                         <i class='fas fa-industry me-2'></i>
-                        Vending History 
+                        Visiting Follow up
                         <span id="vendingHistoryCount" class="badge ms-2" style="background-color: #d6f7fa; color: #00cfdd;">
                      
                         </span>
@@ -253,13 +287,13 @@
                                 @include('vendor.history.create')
                             </div>
 
-                           <div class="col-xl-6 col-lg-6 col-md-6">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
                                 <form action="{{ route('vending-history.import') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
 
                                     <div class="row align-items-center">
                                         <!-- File Input -->
-                                        <div class="col-8">
+                                        <div class="col-4">
                                             <input type="file" name="excel_file" class="form-control" id="excel_file" required>
                                             @error('excel_file')
                                                 <div class="text-danger mt-2">{{ $message }}</div>
@@ -267,9 +301,9 @@
                                         </div> 
 
                                         <!-- Button -->
-                                        <div class="col-4">
+                                        <div class="col-8">
                                             <button type="submit" class="btn btn-success">
-                                                <i class="fa-solid fa-upload"></i> Process
+                                                <i class="fa-solid fa-upload"></i> Import Collecting Money File
                                             </button>
                                         </div>
                                     </div>
@@ -612,10 +646,18 @@
                     $('#usernameVendingPoint').html(" ");
                     if(response['vendorServices'] != []) {
 
-                        for (var i = 0; i < response['vendorServices'].length; i++) {
+                        let addedServices = new Set();
 
-                            $("#servicesVendingPoint").append(
-                            '<ul><li>'+ response['vendorServices'][i].service_name + '</li></ul>' ); 
+                        // Loop through your response
+                        for (let i = 0; i < response['vendorServices'].length; i++) {
+                            let serviceName = response['vendorServices'][i].service_name;
+
+                            if (!addedServices.has(serviceName)) {
+                                $("#servicesVendingPoint").append('<li>' + serviceName + '</li>');
+                                addedServices.add(serviceName);
+                            }
+                        }
+                        for (var i = 0; i < response['vendorServices'].length; i++) {
 
                             $("#usernameVendingPoint").append(
                             '<ul><li>'+ response['vendorServices'][i].service_name + ' : ' + 
