@@ -19,7 +19,7 @@ class VendingHistory extends Model
         'amount_collected',
         'remaining_balance',
         'user_id',
-    ];
+    ]; 
 
     public function VendorService()
     {

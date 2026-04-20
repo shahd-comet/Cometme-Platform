@@ -347,35 +347,22 @@
 
                         <fieldset class="form-group">
 
-                            <label class='col-md-12 control-label'>Vendor Name</label> 
+                            <label class='col-md-12 control-label'>Energy System Type</label> 
 
-                            <select name='vendor_username_id' data-live-search="true"
+                            <select name='energy_system_type_id'  data-live-search="true"
 
                             class="selectpicker form-control">
 
                                 <option selected disabled>
 
-                                    <?php if($vendor): ?>
+                                    <?php echo e($energyUser->EnergySystem->EnergySystemType->name); ?>
 
-                                    <?php echo e($vendor->name); ?>
-
-
-                                    <?php else: ?>
-
-                                    Choose one...
-
-                                    <?php endif; ?>
 
                                 </option>
 
-                                <?php $__currentLoopData = $communityVendors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php $__currentLoopData = $energySystemTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $energySystemType): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                                    <option value="<?php echo e($vendor->vendor_username_id); ?>">
-
-                                        <?php echo e($vendor->name); ?>
-
-
-                                    </option>
+                                    <option value="<?php echo e($energySystemType->id); ?>"><?php echo e($energySystemType->name); ?></option>
 
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
@@ -383,27 +370,38 @@
 
                         </fieldset> 
 
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+
                         <fieldset class="form-group">
 
-                            <label class='col-md-12 control-label'>System Type</label>
+                            <label class='col-md-12 control-label'>Energy System</label> 
 
-                            <select name='energy_system_type_id' data-live-search="true"
+                            <select name='energy_system_id'  data-live-search="true"
 
-                                class="selectpicker form-control">
+                            class="selectpicker form-control">
 
-                                <option disabled <?php echo e(empty($energyUser->energy_system_type_id) ? 'selected' : ''); ?>>Choose one...</option>
+                                <option selected disabled>
 
-                                <?php $__currentLoopData = $energySystemTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $energySystemType): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php echo e($energyUser->EnergySystem->name); ?>
 
-                                    <option value="<?php echo e($energySystemType->id); ?>" <?php echo e((isset($energyUser->energy_system_type_id) && $energyUser->energy_system_type_id == $energySystemType->id) ? 'selected' : ''); ?>><?php echo e($energySystemType->name); ?></option>
+
+                                </option>
+
+                                <?php $__currentLoopData = $energySystems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $energySystem): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                                    <option value="<?php echo e($energySystem->id); ?>"><?php echo e($energySystem->name); ?></option>
 
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                            </select>
+                            </select> 
 
-                        </fieldset>
+                        </fieldset> 
 
                     </div>
+
+  
 
                     <div class="col-xl-6 col-lg-6 col-md-6">
 
@@ -504,35 +502,6 @@
                 </div> 
 
                 <div class="row">
-
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-
-                        <fieldset class="form-group">
-
-                            <label class='col-md-12 control-label'>Energy System</label> 
-
-                            <select name='energy_system_id'  data-live-search="true"
-
-                            class="selectpicker form-control">
-
-                                <option selected disabled>
-
-                                    <?php echo e($energyUser->EnergySystem->name); ?>
-
-
-                                </option>
-
-                                <?php $__currentLoopData = $energySystems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $energySystem): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                                    <option value="<?php echo e($energySystem->id); ?>"><?php echo e($energySystem->name); ?></option>
-
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                            </select> 
-
-                        </fieldset> 
-
-                    </div>
 
                     <div class="col-xl-6 col-lg-6 col-md-6">
 

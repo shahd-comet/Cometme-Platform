@@ -714,8 +714,8 @@
         "energy-public":            { active: ["energy-public"],    open: ["energy-service", "services"] },
         "comet-meter":              { active: ["comet-meter"],      open: ["energy-service", "services"] },
         "refrigerator-user":        { active: ["refrigerator-user"], open: ["energy-service", "services"] },
-        "vendor":                   { active: ["vendor"],           open: ["energy-service", "services"] },
-        "vending-point":            { active: ["vendor"],           open: ["energy-service", "services"] },
+        "vending-history":                   { active: ["vendor"],           open: ["vending"] },
+        "vending-point":            { active: ["vendor"],           open: ["vending"] },
 
         // Water Services
         "all-water":                { active: ["all-water"],        open: ["water-service", "services"] },

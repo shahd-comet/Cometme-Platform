@@ -943,10 +943,19 @@ unset($__errorArgs, $__bag); ?>
                 type: 'get',
                 dataType: 'json', 
                 success: function(response) { 
+
                     $('#energyUserModalTitle').html(" ");
-                    $('#energyUserModalTitle').html(response['household'].english_name);
                     $('#englishNameUser').html(" ");
-                    $('#englishNameUser').html(response['household'].english_name);
+                    if(response['household']) {
+
+                        $('#energyUserModalTitle').html(response['household'].english_name);
+                        $('#englishNameUser').html(response['household'].english_name);
+                    }
+                    if(response['public']) {
+
+                        $('#energyUserModalTitle').html(response['public'].english_name);
+                        $('#englishNameUser').html(response['public'].english_name);
+                    }
                     $('#communityUser').html(" ");
                     $('#communityUser').html(response['community'].english_name);
                     $('#meterActiveUser').html(" ");
@@ -964,7 +973,17 @@ unset($__errorArgs, $__bag); ?>
                     $('#systemNotesUser').html(" ");
                     if(response['energy']) $('#systemNotesUser').html(response['energy'].notes);
                     $('#vendorDateUser').html(" ");
-                    if(response['vendor']) $('#vendorDateUser').html(response['vendor'].name);
+
+                    if(response['vendor'] != []) {
+
+                        for (var i = 0; i < response['vendor'].length; i++) {
+
+                            $("#vendorDateUser").append(
+                            '<ul><li>'+ response['vendor'][i].english_name + ' : ' + 
+                            response['vendor'][i].name + '</li></ul>' );  
+                        }
+                    }
+
                     
                     $('#systemGroundUser').html(" ");
                     $('#systemGroundUser').html(response['energy'].ground_connected);

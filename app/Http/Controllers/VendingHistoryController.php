@@ -15,7 +15,7 @@ use App\Models\CommunityVendor;
 use App\Models\User;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
-use App\Models\Region;
+use App\Models\Region; 
 use App\Models\Town;
 use App\Models\VendorUserName;
 use App\Models\VendorRegion;
@@ -134,7 +134,7 @@ class VendingHistoryController extends Controller
 
                 $data = DB::table('vending_histories')
                     ->join('vendor_services', 'vending_histories.vendor_service_id', 'vendor_services.id')
-                    ->join('vendors', 'vendor_services.vendor_id', 'vendors.id')
+                    ->join('vendors', 'vending_histories.vendor_id', 'vendors.id')
                     ->leftJoin('service_types', 'vendor_services.service_type_id', 'service_types.id')
                     ->leftJoin('users', 'vending_histories.user_id', 'users.id')
                     ->leftJoin('vendor_regions', 'vendors.vendor_region_id', 'vendor_regions.id')
@@ -142,11 +142,11 @@ class VendingHistoryController extends Controller
                     ->leftJoin('towns', 'vendors.town_id', 'towns.id')
                     ->where('vending_histories.is_archived', 0);
 
-                $data->when($regionFilter, fn($q) => $q->where('vendor_regions.id', $regionFilter))
+                $data->when($vendorFilter, fn($q) => $q->where('vending_histories.vendor_id', $vendorFilter))
+                    ->when($regionFilter, fn($q) => $q->where('vendor_regions.id', $regionFilter))
                     ->when($communityFilter, fn($q) => $q->where('communities.id', $communityFilter))
                     ->when($townFilter, fn($q) => $q->where('towns.id', $townFilter))
-                    ->when($serviceFilter, fn($q) => $q->where('service_types.id', $serviceFilter))
-                    ->when($vendorFilter, fn($q) => $q->where('vendors.id', $vendorFilter));
+                    ->when($serviceFilter, fn($q) => $q->where('service_types.id', $serviceFilter));
 
                 $search = $request->input('search.value'); 
 

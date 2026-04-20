@@ -48,7 +48,7 @@ class Vendor extends Model
 
     public function Town()
 
-    {
+    { 
 
         return $this->belongsTo(Town::class, 'town_id', 'id');
 

@@ -16,7 +16,7 @@ use App\Models\Community;
 use App\Models\ServiceType;
 use App\Models\Region;
 use App\Models\Town;
-use App\Exports\VendingPointExport;
+use App\Exports\VendingPointAndHistoryExport;
 use Carbon\Carbon;
 use Auth;
 use DB;
@@ -153,7 +153,7 @@ class VendingPointController extends Controller
             }
         } 
     }
-
+ 
     /**
      * Show the form for creating a new resource.
      *
@@ -306,52 +306,54 @@ class VendingPointController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) 
+    public function edit($id)
     {
-        $vendingPoint = Vendor::findOrFail($id); 
+        $vendingPoint = Vendor::findOrFail($id);
+
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();
+
         $vendorRegions = VendorRegion::where('is_archived', 0)->get();
+
         $vendorUsers = VendorUserName::all();
+
         $towns = Town::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();
-        $services = ServiceType::where('is_archived', 0)->where("service_name", "!=", "Camera")->get();
 
+        $services = ServiceType::where('is_archived', 0)
+            ->where("service_name", "!=", "Camera")
+            ->get();
+
+        // vendor services
         $vendorData = DB::table('vendor_services')
             ->join('vendor_user_names', 'vendor_services.vendor_user_name_id', '=', 'vendor_user_names.id')
-            ->join('service_types', 'vendor_services.service_type_id', '=', 'service_types.id')
             ->where('vendor_services.vendor_id', $vendingPoint->id)
             ->select(
                 'vendor_services.service_type_id',
-                'service_types.service_name',
-                'vendor_user_names.id as vendor_user_name_id',
-                'vendor_user_names.name as vendor_user_name'
-            ) 
-            ->get();
-
-        // Fetch communities linked to vendor usernames
-        $vendorCommunities = DB::table('community_vendors')
-            ->join('communities', 'community_vendors.community_id', '=', 'communities.id')
-            ->where('community_vendors.vendor_id', $vendingPoint->id)
-            ->where('community_vendors.is_archived', 0)
-            ->select(
-                'community_vendors.service_type_id', 
-                'community_vendors.vendor_username_id',
-                'community_vendors.community_id',
-                'communities.english_name',
-                'community_vendors.id'
+                'vendor_services.vendor_user_name_id'
             )
             ->get()
-            ->groupBy([
-                'service_type_id',
-                'vendor_username_id'
-            ]);
+            ->groupBy('service_type_id');
 
+        // communities per username per service
+        $vendorCommunities = DB::table('community_vendors')
+            ->where('vendor_id', $vendingPoint->id)
+            ->where('is_archived', 0)
+            ->get()
+            ->groupBy(['service_type_id', 'vendor_username_id']);
 
-        return view('vendor.edit', compact('vendingPoint', 'communities', 'services',
-            'vendorRegions', 'vendorUsers', 'towns', 'vendorCommunities', 'vendorData'));
+        return view('vendor.edit', compact(
+            'vendingPoint',
+            'communities',
+            'vendorRegions',
+            'vendorUsers',
+            'towns',
+            'services',
+            'vendorData',
+            'vendorCommunities'
+        ));
     }
 
     /**
@@ -364,68 +366,89 @@ class VendingPointController extends Controller
     {
         //dd($request->all());
         $vendor = Vendor::findOrFail($id);
+
         $vendor->english_name = $request->english_name;
         $vendor->arabic_name = $request->arabic_name;
         if($request->vendor_region_id) $vendor->vendor_region_id = $request->vendor_region_id;
-        $vendor->phone_number = $request->phone_number;
-        $vendor->additional_phone_number = $request->additional_phone_number;
-        $vendor->notes = $request->notes;
-        if($request->community_town == 'community') {
-            
-            $vendor->community_id = $request->community_town_id;
-            $vendor->town_id = null;
-        }
-        if($request->community_town == 'town') {
+        if($request->phone_number) $vendor->phone_number = $request->phone_number;
+        if($request->status) $vendor->status = $request->status;
+        if($request->additional_phone_number) $vendor->additional_phone_number = $request->additional_phone_number;
+        if($request->notes) $vendor->notes = $request->notes;
 
+        // $vendor->community_id = null;
+        // $vendor->town_id = null;
+
+        if ($request->community_town === "community") {
+            $vendor->community_id = $request->community_town_id;
+        } elseif ($request->community_town === "town") {
             $vendor->town_id = $request->community_town_id;
-            $vendor->community_id = null;
         }
+
         $vendor->save();
 
+        DB::table('vendor_services')->where('vendor_id', $vendor->id)->delete();
+        DB::table('community_vendors')->where('vendor_id', $vendor->id)->delete();
 
-        // // Remove all existing vendor services for this vendor
-        // DB::table('vendor_services')->where('vendor_id', $vendor->id)->delete();
-        // DB::table('community_vendors')->where('vendor_id', $vendor->id)->delete();
+        if ($request->has('service_type_id')) {
 
-        // // Handle services + vendor usernames
-        // if ($request->filled('service_type_id')) {
-        //     foreach ($request->service_type_id as $serviceId) {
-        //         $usernames = $request->input("vendor_user_name_id.$serviceId", []);
+            foreach ($request->service_type_id as $serviceId) {
 
-        //         foreach ($usernames as $username) {
-        //             // Check if username is numeric (existing) or string (new)
-        //             if (is_numeric($username)) {
-        //                 $vendorUsernameId = $username;
-        //             } else {
-        //                 $vendorUsername = VendorUserName::create([
-        //                     'name' => $username,
-        //                     'vendor_id' => $vendor->id,
-        //                 ]);
-        //                 $vendorUsernameId = $vendorUsername->id;
-        //             }
+                if (!isset($request->vendor_user_name_id[$serviceId])) {
+                    continue;
+                }
 
-        //             // Save vendor service
-        //             DB::table('vendor_services')->insert([
-        //                 'vendor_user_name_id' => $vendorUsernameId,
-        //                 'service_type_id' => $serviceId,
-        //                 'vendor_id' => $vendor->id,
-        //             ]);
+                foreach ($request->vendor_user_name_id[$serviceId] as $usernameId) {
 
-        //             // Save served communities
-        //             $communities = $request->input("served_communities.$serviceId.$username", []);
-        //             foreach ($communities as $communityId) {
-        //                 DB::table('community_vendors')->insert([
-        //                     'vendor_username_id' => $vendorUsernameId,
-        //                     'community_id' => $communityId,
-        //                     'service_type_id' => $serviceId,
-        //                     'vendor_id' => $vendor->id,
-        //                 ]);
-        //             }
-        //         }
-        //     }
-        // }
+                    if (!is_numeric($usernameId)) {
+                        $newUser = VendorUserName::create([
+                            'name' => $usernameId,
+                            'vendor_id' => $vendor->id,
+                        ]);
 
-        return redirect()->route('vending-history.index')->with('message', 'Vending Point Updated Successfully!');
+                        // Move 'new' communities to the actual new username ID
+                        if (isset($request->served_communities[$serviceId]['new'])) {
+                            $request->merge([
+                                'served_communities' => array_replace_recursive(
+                                    $request->served_communities,
+                                    [
+                                        $serviceId => [
+                                            $newUser->id => $request->served_communities[$serviceId]['new']
+                                        ]
+                                    ]
+                                )
+                            ]);
+
+                            unset($request->served_communities[$serviceId]['new']);
+                        }
+
+                        $usernameId = $newUser->id;
+                    }
+
+                    DB::table('vendor_services')->insert([
+                        'vendor_user_name_id' => $usernameId,
+                        'service_type_id' => $serviceId,
+                        'vendor_id' => $vendor->id,
+                    ]);
+
+                    if (
+                        isset($request->served_communities[$serviceId][$usernameId])
+                    ) {
+                        foreach ($request->served_communities[$serviceId][$usernameId] as $communityId) {
+
+                            DB::table('community_vendors')->insert([
+                                'vendor_username_id' => $usernameId,
+                                'service_type_id' => $serviceId,
+                                'vendor_id' => $vendor->id,
+                                'community_id' => $communityId,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return redirect('/vending-history')
+            ->with('message', 'Vendor updated successfully!');
     }
 
     /**
@@ -547,6 +570,6 @@ class VendingPointController extends Controller
     public function export(Request $request) 
     {
 
-        return Excel::download(new VendingPointExport($request), 'Vending Points.xlsx');
+        return Excel::download(new VendingPointAndHistoryExport($request), 'Vending Points & Collecting Money History.xlsx');
     }
 }

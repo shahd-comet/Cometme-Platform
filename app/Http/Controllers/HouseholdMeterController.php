@@ -253,7 +253,7 @@ class HouseholdMeterController extends Controller
                 ->where('households.community_id', $energyUser->community_id)
                 ->where('households.id', '!=', $energyUser->household_id)
                 ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
-                ->whereNull('all_energy_meters.household_id')
+                //->whereNull('all_energy_meters.household_id')
                 ->where('households.is_archived', 0)
                 ->select('households.id', 'households.english_name')
                 ->orderBy('households.english_name', 'ASC')
@@ -289,7 +289,7 @@ class HouseholdMeterController extends Controller
                 ->where('public_structures.id', '!=', $energyUser->public_structure_id)
                 ->leftJoin('all_energy_meters', 'public_structures.id', 
                     'all_energy_meters.public_structure_id')
-                ->whereNull('all_energy_meters.public_structure_id')
+                //->whereNull('all_energy_meters.public_structure_id')
                 ->where('public_structures.is_archived', 0)
                 ->select('public_structures.id', 'public_structures.english_name')
                 ->orderBy('public_structures.english_name', 'ASC')
